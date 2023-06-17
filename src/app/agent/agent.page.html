@@ -1,0 +1,84 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start" (click)="CommonService.showTabMenu =true">
+      <ion-buttons slot="start" routerLink="../../home">
+        <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+      </ion-buttons>
+    </ion-buttons>
+    <ion-title class="ion-text-center">
+      List of {{working_for_user_or_agent}}s
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">  List of {{working_for_user_or_agent}}s</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <!-- <ion-button fill="outline" shape="round">Detail</ion-button>
+  <ion-button fill="outline" shape="round">Edit</ion-button>
+  <ion-button fill="solid" shape="round" color="danger">Delete</ion-button>
+
+   -->
+ 
+
+
+    <ion-fab slot="fixed" *ngIf="CommonService.filteredListUserAgent && CommonService.filteredListUserAgent.length>0"
+      routerLink="../../agents/agentadd/{{working_for_user_or_agent}}"vertical="bottom"
+      horizontal="end">
+     
+    <ion-button   item-start color="primary" >+ Add
+      {{working_for_user_or_agent}}</ion-button>
+  
+    </ion-fab>
+  <ion-card *ngIf="CommonService.filteredListUserAgent && CommonService.filteredListUserAgent.length==0" style="padding:10px">
+    <img *ngIf="working_for_user_or_agent=='Agent'" src="assets/bank-agent-icon.jpg" style="height: 50%;
+    width: 50%;" />
+    <img *ngIf="working_for_user_or_agent=='User'" src="assets/bank-users-icon.jpg" style="height: 50%;
+    width: 50%;" />
+    <ion-card style="padding:1px;border: 1px solid red;">
+      <h5 style="color:red;text-align:center;">
+        No    {{working_for_user_or_agent}}  added till now.
+      </h5>
+    </ion-card> <br /> <br />
+    Hi. You have not added any  {{working_for_user_or_agent}} till now. You can add it using below button.
+    <br /> <br />
+    <span *ngIf="working_for_user_or_agent=='Agent'">
+      Agent is a person who helps you with your bank or post office works. <br /> <br />
+      Like opening new accounts or policies, passbook entries etc <br /> <br />
+    </span>
+    <span *ngIf="working_for_user_or_agent=='User'">
+      These users will be used for opening accounts on their name and for nomination purpose.<br /> <br />
+      You can grant acess to them to login into your account of this app.<br /> <br />
+    </span>
+    <ion-button   item-start  color="primary" routerLink="../../agents/agentadd/{{working_for_user_or_agent}}">+ Add
+      {{working_for_user_or_agent}}</ion-button>
+  </ion-card>
+
+  <ion-list *ngIf="CommonService.filteredListUserAgent && CommonService.filteredListUserAgent.length>0">
+     
+
+    
+    <ion-item detail="true" class="itemborder" *ngFor="let perAgent of CommonService.filteredListUserAgent; ">
+      <ion-thumbnail slot="start" (click)="viewAgent(perAgent.agent_id_int)">
+        <img alt="  Img" *ngIf="!perAgent.image_path || perAgent.image_path==''" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+
+        <img alt="  Img" *ngIf="perAgent.image_path && perAgent.image_path!=''" src="{{perAgent.serverpath}}/{{perAgent.image_path}}" />
+      </ion-thumbnail>
+      <ion-label>
+        <p (click)="viewAgent(perAgent.agent_id_int)"> <ion-icon name="person-outline"></ion-icon> {{perAgent. name}} <br />
+          <ion-icon name="phone-portrait-outline"></ion-icon> {{perAgent.mobile}}
+          <br /> <ion-icon name="mail-outline"></ion-icon> {{perAgent.email}}
+        </p>
+        <ion-icon name="create-outline" class="per-ion-icon" (click)="editAgent(perAgent.agent_id_int)"
+          item-right></ion-icon>
+        <ion-icon name="trash-outline" item-right color="danger" style="margin-left:10px;" (click)="deleteAgentActionSheet(  perAgent.agent_id_int)"
+          class="per-ion-icon"></ion-icon>
+      </ion-label>
+    </ion-item>
+
+  </ion-list>
+ 
+</ion-content>

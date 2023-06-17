@@ -1,0 +1,259 @@
+<ion-header [translucent]="true">
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-buttons slot="start"
+                routerLink="../../../../../../accounts/{{account_or_policy}}/{{showingListFor}}/{{idOfthePersonForWhomListIs}}">
+                <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+            </ion-buttons>
+        </ion-buttons>
+        <ion-title class="ion-text-center">
+            {{  accountDetailObj.account_or_policy}} Details
+            <ion-icon name="trash-outline" item-right color="danger"
+                (click)="deleteAccountActionSheet(accountDetailObj.account_id_int)"
+                class="per-ion-icon float-right "></ion-icon>
+            <ion-icon name="create-outline" class="per-ion-icon float-right padding-right-10"
+                (click)="editAccount(accountDetailObj.account_id_int)" item-right></ion-icon>
+
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" *ngIf="accountDetailObj">
+    <ion-header collapse="condense">
+        <ion-toolbar>
+            <ion-title size="large">   Details</ion-title>
+        </ion-toolbar>
+    </ion-header>
+
+
+    <ion-card-header>
+        <ion-card-title> <img alt="  Img" style="width: 50px;height:      50px;"
+                *ngIf="accountDetailObj.organisation_img && accountDetailObj.organisation_img!=''"
+                src="{{accountDetailObj.serverpath}}{{accountDetailObj.organisation_img}}" /> <br />
+            {{accountDetailObj. account_title}}</ion-card-title>
+        <ion-card-subtitle>{{accountDetailObj. organisation}}
+            <span *ngIf="accountDetailObj.bank_or_post_office=='Bank'">
+                (IFSC - {{accountDetailObj.ifsc}})
+            </span>
+            <br />
+
+            {{accountDetailObj.postoffice_bank_address}}
+        </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+
+
+        <div class="borderme">
+            {{  accountDetailObj.account_or_policy}} Holder : {{accountDetailObj. account_holder_name}}
+            <br /> Mobile No. : {{accountDetailObj.mobile_given_for_account}}  <br /> Email Id :
+            {{accountDetailObj.email_given_for_account}}
+
+            <br />
+            Address : {{accountDetailObj.address_given_for_account}}
+            <br />
+        </div>
+
+
+        <div class="borderme">
+            {{  accountDetailObj.account_or_policy}} No. : {{accountDetailObj.account_number}}
+            <span *ngIf="accountDetailObj.bank_or_post_office=='Bank'">
+                (  {{  accountDetailObj.account_or_policy}} Type - {{accountDetailObj.account_type}})
+            </span>
+            <br />
+
+            Customer Id/CIF No. : {{accountDetailObj.unique_id_for_account}}
+            <span *ngIf="accountDetailObj.agent_id_int>-1">
+                <br />Helping Agent : {{accountDetailObj.helping_agent_name}}
+            </span>
+            <br />
+            {{  accountDetailObj.account_or_policy}} opening date : {{accountDetailObj.account_opening_date | date: 'longDate'}}
+            <br />
+            <span *ngIf="accountDetailObj.account_or_policy=='Policy' && accountDetailObj.parent_account_id_int">
+                Parent Account : {{accountDetailObj.parent_account_title}} (Acc. No. : {{accountDetailObj.parent_account_number}})
+                <br />
+              </span>
+        </div>
+
+        <div class="borderme">
+            Is Netbanking enabled ? : {{accountDetailObj.is_netbanking_enabled ? 'Yes' : 'No'}}
+            <br />
+            Is Pan No. attached ? : {{accountDetailObj.is_pancard_attached ? 'Yes' : 'No'}}
+            <br />
+            Is Adhaar No. attached ? : {{accountDetailObj.is_adhaar_attached ? 'Yes' : 'No'}}
+
+
+            <br />
+        </div>
+        <div class="borderme" *ngIf="accountDetailObj.otherdetails"> {{accountDetailObj.otherdetails}}
+            <br />
+        </div>
+    </ion-card-content>
+
+
+
+    <ion-grid [fixed]="true" *ngFor="let perRow of tileList ">
+        <ion-row>
+            <ion-col *ngFor="let perCol of perRow.rowKey" (click)="performAtion(perCol)" id="{{perCol.id}}">
+                <span *ngIf="perCol.id">
+
+
+
+
+                    <img src=" {{perCol.img}}" style=" {{perCol.imgstyle}}" />
+                    <br />
+
+                    <span style=" color:  {{perCol.titleColor}}">{{perCol.title}} <br />
+                        <small style=" color:  {{perCol.subtitleColor}}">
+                            {{perCol.subtitle}}
+                        </small>
+
+                    </span>
+                </span>
+            </ion-col>
+
+
+        </ion-row>
+    </ion-grid>
+
+
+    <ion-modal #modal trigger="open-modal" [initialBreakpoint]="0.5" [breakpoints]="[0, 0.25, 0.5, 0.75,0.90]">
+        <ng-template>
+            <ion-content>
+                <h3 class="centerme">Nominees list</h3>
+                <ion-list *ngIf='accountDetailObj.nomineeArr.length==0'>
+                    <ion-item>
+
+                        <ion-label>
+
+                            <ion-card style="padding:10px;border: 1px solid red;">
+                                <h2 style="color:red;text-align:center;">
+                                    No Nominee Added For This  {{  accountDetailObj.account_or_policy}}
+                                </h2>
+                            </ion-card>
+                        </ion-label>
+                    </ion-item>
+
+                </ion-list>
+                <ion-list *ngIf='accountDetailObj.nomineeArr.length>0'>
+                    <ion-card *ngFor="let perNominee of accountDetailObj.nomineeArr.slice().reverse();let i = index">
+                        <ion-card-header>
+                            <ion-card-subtitle>
+
+                                {{perNominee.nominee_name}} ( {{perNominee.relation}} ) will get
+                                {{perNominee.sharepercent}} %
+                                <ion-icon name="trash-outline" item-right color="danger" style="float:right"
+                                    (click)="deleteNominee(i)" class="per-ion-icon">
+
+                                </ion-icon>
+                            </ion-card-subtitle>
+
+                        </ion-card-header>
+
+                    </ion-card>
+                </ion-list>
+            </ion-content>
+        </ng-template>
+    </ion-modal>
+
+    <ion-modal #modal trigger="open-modalDocs" [initialBreakpoint]="0.90"
+        [breakpoints]="[0, 0.25, 0.5, 0.75,0.85,0.90,1]">
+        <ng-template>
+            <ion-content><br /> <br />
+<span class="centerme">
+                <ion-chip class="form-chip-reactangle" (click)="whattypeofdocadding='hard';  "
+                [color]="whattypeofdocadding =='hard' ? 'secondary' :  'dark'">Physical Docs</ion-chip>
+              <ion-chip class="form-chip-reactangle" (click)="whattypeofdocadding='soft';  "
+                [color]="whattypeofdocadding =='soft' ? 'secondary' :  'dark'">Digital Docs</ion-chip><br /> <br />
+             
+            </span>
+            <br /> 
+                <span *ngIf="whattypeofdocadding=='hard'">
+                
+                <span *ngIf='showHardDocsform'>
+                  <b class="centerme">Physical Documents </b>
+                  <small style="padding:10px" class="centerme">Add related Physical Documents !</small>
+                  <ion-item>
+                    <ion-label position="floating">Document Name<span class="required">*</span></ion-label>
+                    <ion-input type="text" placeholder="Passbook" [(ngModel)]="hardCopyDetailObj.document_name"></ion-input>
+                  </ion-item>
+                  <ion-button fill="outline" color="primary" class="rightme" (click)="addHardCopiesDoc()">Add </ion-button>
+          
+                  <br /> <br /> <br /> <br />
+                </span>
+          
+                <b class="centerme">Physical Documents list</b>
+                <span *ngIf='accountDetailObj.hardCopyDocArr.length==0'>
+                  <ion-card>
+                    <ion-card-header>
+                      <ion-card-subtitle>You have not added any Physical Document name till now !</ion-card-subtitle>
+                    </ion-card-header>
+          
+                  </ion-card>
+                </span>
+                <span *ngIf='accountDetailObj.hardCopyDocArr.length>0'>
+          
+          
+                  <ion-card *ngFor="let perhardFile of accountDetailObj.hardCopyDocArr.slice().reverse(); let i = index ">
+          
+          
+                    <ion-card-header>
+                      <ion-card-subtitle>
+          
+                        {{perhardFile.document_name}}
+                        <span *ngIf="perhardFile.task_name">
+                            <br />Currently this document is with Agent
+                            <b>{{perhardFile.agent_name}}</b>  for task 
+                              
+                             <b>{{perhardFile.task_name}}</b> 
+                          </span>
+                        <ion-icon name="trash-outline" item-right color="danger" style="float:right"
+                          (click)="deleteHardCopiesDoc(i)" class="per-ion-icon">
+          
+                        </ion-icon>
+                      </ion-card-subtitle>
+          
+                    </ion-card-header>
+          
+                  </ion-card>
+                  <span *ngIf='!showHardDocsform'>
+                    <ion-button fill="clear" color="primary" class="rightme" (click)="showHardDocsform=true"> + Add
+                      More
+                    </ion-button>
+          
+                  </span>
+          
+                </span>
+          
+              </span>
+              <span *ngIf="whattypeofdocadding=='soft'">
+          
+          
+                <b class="centerme">Digital Documents </b>
+                <small style="padding:10px" class="centerme">Add related Digital Documents !</small>
+                <app-fileupload [moduleInfo]="moduleInfoList" (newmoduleInfo)="updateImageInfoFunList($event)"></app-fileupload>
+          
+                <ion-card *ngFor="let perFile of accountDetailObj.imageArr.slice().reverse(); let i = index ">
+                  <ion-item>
+                    <ion-thumbnail slot="start" (click)="viewDoc(perFile)">
+                      <img *ngIf="perFile.filetype=='Image'" [src]="perFile.serverpath+perFile.filepath" />
+                      <ion-icon style="font-size: xxx-large;" name="document-outline"
+                        *ngIf="perFile.filetype!='Image'"></ion-icon>
+                    </ion-thumbnail>
+                    <ion-label>
+                      {{perFile.originalname}}
+                      <br />
+                      <ion-icon name="download-outline" class="per-ion-icon margin-top-10" (click)="viewDoc(perFile)"
+                        item-right></ion-icon>
+                      <ion-icon name="trash-outline" color="danger" style="margin-left: 10px;" class="per-ion-icon margin-top-10"
+                        (click)="deleteFile(perFile,i)"></ion-icon>
+                    </ion-label>
+                  </ion-item>
+                </ion-card> </span>
+
+
+            </ion-content>
+        </ng-template>
+    </ion-modal>
+
+
+</ion-content>

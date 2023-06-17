@@ -1,0 +1,44 @@
+<h2 align="center"> <span id="fileSelector">
+    <span class="upload-btn-wrapper ">
+      <ion-avatar [style]="moduleInfo.style ?  moduleInfo.style : ' margin: auto;width:84px;height:84px'" *ngIf="moduleInfo.showPreview">
+
+        <img *ngIf="moduleInfo.image_path!='' && moduleInfo.image_path"
+          [src]="moduleInfo.serverpath+moduleInfo.image_path">
+        <img *ngIf="moduleInfo.image_path=='' || !moduleInfo.image_path " [src]="moduleInfo.browseimagepath ">
+      </ion-avatar>
+
+      <ion-avatar style="margin: auto;width:84px;height:84px" *ngIf="!moduleInfo.showPreview">
+        <img [src]="moduleInfo.browseimagepath " *ngIf="!loading  ">
+         
+
+        
+        <img [src]="'assets/uploading.gif'" style=" width:184px;height:184px;    margin-top: -43px;
+        " *ngIf="loading">
+
+      </ion-avatar>
+
+      <span *ngIf="moduleInfo.filetype=='Image' " >
+        <input type="file" *ngIf="moduleInfo.multipleAllowed" [style]="moduleInfo.style ?  '
+        margin-left: -227px;
+    ' : ' '" (change)="onFileChange($event)" id="fileUpload" multiple
+          accept="image/*" />
+        <input type="file" *ngIf="!moduleInfo.multipleAllowed" [style]="moduleInfo.style ?  '
+        margin-left: -227px;
+    ' : ' '" (change)="onFileChange($event)" id="fileUpload"
+          accept="image/*" />
+
+      </span>
+
+
+      <span *ngIf="moduleInfo.filetype=='Any' ">
+        <input type="file" *ngIf="moduleInfo.multipleAllowed" (change)="onFileChange($event)" id="fileUpload"
+          multiple />
+        <input type="file" *ngIf="!moduleInfo.multipleAllowed" (change)="onFileChange($event)" id="fileUpload" />
+
+      </span>
+      <p *ngIf=" loading " style="font-size: small;">Please wait while we upload your file..</p>
+
+      <p *ngIf="moduleInfo.linebelowBrowsefile!='' && !loading " style="font-size: small;">{{moduleInfo.linebelowBrowsefile}}</p>
+    </span>
+  </span>
+</h2>

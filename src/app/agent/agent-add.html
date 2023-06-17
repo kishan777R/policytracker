@@ -1,0 +1,274 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start" (click)="CommonService.showTabMenu =false" > 
+      <span *ngIf="isOpenedAsModal">
+        <ion-buttons slot="start"   (click)="dismissComponentAsModal()">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons>
+      </span>
+      <span *ngIf="!isOpenedAsModal">
+        <ion-buttons slot="start" *ngIf="!agent_id_int" routerLink="../../../agents/{{working_for_user_or_agent}}">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons>
+        <ion-buttons slot="start" *ngIf="agent_id_int && CommonService.agentLastPage == 'List'"
+          routerLink="../../../../agents/{{working_for_user_or_agent}}">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons>
+        <ion-buttons slot="start" *ngIf="agent_id_int && CommonService.agentLastPage == 'Detail'"
+          routerLink="../../../../agents/agentdetail/{{working_for_user_or_agent}}/{{agent_id_int}}">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons>
+      </span>
+      
+    </ion-buttons>
+    <ion-title class="ion-text-center">
+
+      <span *ngIf="!agent_id_int">
+        Add New {{working_for_user_or_agent}}
+      </span> <span *ngIf="agent_id_int">
+        Update {{working_for_user_or_agent}}
+      </span>
+    </ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" #content>
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large"> <span *ngIf="!agent_id_int">
+          Add New {{working_for_user_or_agent}}
+        </span> <span *ngIf="agent_id_int">
+          Update {{working_for_user_or_agent}}
+        </span> </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <app-fileupload [moduleInfo]="moduleInfo" (newmoduleInfo)="updateImageInfoFun($event)"></app-fileupload>
+
+
+
+  <div class="centerme">
+    <ion-button shape="round" (click)="saveDataOfAgent();"> <span *ngIf="!agent_id_int">
+        Save Details
+      </span> <span *ngIf="agent_id_int">
+        Update Details
+      </span> </ion-button>
+  </div>
+
+  <small class="centerme" style="margin-top: 10px;">Fields with asterik (<span class="required">*</span>) are required
+  </small>
+
+
+  <ion-segment color="primary" value="personal" (ionChange)="segmentChange($event)">
+    <ion-segment-button value="personal">
+      <ion-label>Personal </ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="professional" *ngIf="working_for_user_or_agent=='Agent'">
+      <ion-label>Professional </ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="Softfile">
+      <ion-label>Document </ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-list *ngIf="currentSegment=='personal'">
+    <ion-item>
+      <ion-label position="floating">Full Name <span class="required">*</span></ion-label>
+      <ion-input placeholder="eg. Rajesh" [(ngModel)]="agentDetailObj.name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Mobile <span class="required">*</span></ion-label>
+      <ion-input type="text" placeholder="eg. 9889222211" [(ngModel)]="agentDetailObj.mobile"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Email </ion-label>
+      <ion-input placeholder="rajeshgmail.com" type="email" [(ngModel)]="agentDetailObj.email"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Alternate Mobile </ion-label>
+      <ion-input type="text" placeholder="eg. 9389222211" [(ngModel)]="agentDetailObj.alt_mobile"></ion-input>
+    </ion-item>
+
+    <ion-item *ngIf="working_for_user_or_agent=='User'">
+      <ion-label position="floating" class="margin-bottom-12">Date of Birth </ion-label>
+      <ion-input type="date" [(ngModel)]="agentDetailObj.dob"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Aadhaar Number </ion-label>
+      <ion-input type="text" [(ngModel)]="agentDetailObj.aadhaar"></ion-input>
+    </ion-item>
+    <ion-item *ngIf="working_for_user_or_agent=='User'">
+      <ion-label position="floating">Pancard Number </ion-label>
+      <ion-input type="text" [(ngModel)]="agentDetailObj.pancard"></ion-input>
+    </ion-item>
+    <!-- <span *ngIf="working_for_user_or_agent=='User'">
+      <br />
+      <ion-label style="margin-left: 13px" position="floating">Relation  </ion-label>
+
+
+      <br />
+      <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Father';  "
+        [color]="agentDetailObj.relation=='Father'  ? 'secondary' :  'dark'">Father</ion-chip>
+      <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Mother';  "
+        [color]="agentDetailObj.relation=='Mother' ? 'secondary' :  'dark'">Mother</ion-chip><br />
+        <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Grand-father';  "
+        [color]="agentDetailObj.relation=='Grand-father' ? 'secondary' :  'dark'">Grand-father</ion-chip>
+        <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Grand-mother';  "
+        [color]="agentDetailObj.relation=='Grand-mother' ? 'secondary' :  'dark'">Grand-mother</ion-chip><br />
+      <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Son';  "
+        [color]="agentDetailObj.relation=='Son' ? 'secondary' :  'dark'">Son</ion-chip>
+        <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Daughter';  "
+        [color]="agentDetailObj.relation=='Daughter' ? 'secondary' :  'dark'">Daughter</ion-chip><br />
+        <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Grand-son';  "
+        [color]="agentDetailObj.relation=='Grand-son' ? 'secondary' :  'dark'">Grand-son</ion-chip>
+        <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Grand-daughter';  "
+        [color]="agentDetailObj.relation=='Grand-daughter' ? 'secondary' :  'dark'">Grand-daughter</ion-chip><br />
+        <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Brother';  "
+        [color]="agentDetailObj.relation=='Brother' ? 'secondary' :  'dark'">Brother</ion-chip>
+        <ion-chip class="form-chip width-158" (click)="agentDetailObj.relation='Sister';  "
+        [color]="agentDetailObj.relation=='Sister' ? 'secondary' :  'dark'">Sister</ion-chip>
+       
+      <br />
+      <br />
+    </span> -->
+    <ion-item>
+      <ion-label position="floating">Full Address </ion-label>
+      <ion-textarea [autoGrow]="true" placeholder="eg. House 23 Block c "
+        [(ngModel)]="agentDetailObj.address"></ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">City </ion-label>
+      <ion-input type="text" placeholder="eg. Noida" [(ngModel)]="agentDetailObj.city"></ion-input>
+    </ion-item>
+
+    <ion-item>
+
+
+      <ion-select placeholder="Select State" [(ngModel)]="agentDetailObj.state">
+        <ion-select-option value="{{perState}}" *ngFor="let perState of stateList; ">
+          {{perState}}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Pincode </ion-label>
+      <ion-input type="number" [(ngModel)]="agentDetailObj.pincode" placeholder="112200"></ion-input>
+    </ion-item>
+  </ion-list>
+
+  <ion-list *ngIf="currentSegment=='professional'">
+    <br /> <br />
+    <b class="centerme">Add license numbers of agent</b>
+    <br /> <br />
+
+    <span *ngIf='showLicenceform'>
+      <ion-label position="floating" style="margin-left: 13px">Select License Provider <span class="required">*</span>
+      </ion-label>
+
+
+      <br />
+
+
+      <ion-chip class="form-chip" *ngFor="let perOrganisation_typeList of organisation_typeList; "
+        (click)="licenseAddObj.organisation_type=perOrganisation_typeList.name; assignOrganisationWithCondition(perOrganisation_typeList.name)"
+        [color]="licenseAddObj.organisation_type==perOrganisation_typeList.name ? 'secondary' :  'dark'">{{perOrganisation_typeList.name}}</ion-chip>
+      <br />
+      <br />
+
+
+      <ion-item *ngIf="licenseAddObj.organisation_type=='Bank'">
+        <ion-label position="floating">Select Bank <span class="required">*</span> </ion-label> <ion-select
+          placeholder="Select Bank" [(ngModel)]="licenseAddObj.organisation">
+          <ion-select-option value="{{perBank.name}}" *ngFor="let perBank of bankList.banks; ">
+            {{perBank.name}}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">License Number <span class="required">*</span> </ion-label>
+        <ion-input type="text" [(ngModel)]="licenseAddObj.license_no" placeholder=" "></ion-input>
+      </ion-item>
+
+
+      <ion-item>
+        <ion-label position="floating">License Issue Date <span class="required">*</span> </ion-label>
+        <ion-input type="date" [(ngModel)]="licenseAddObj.license_start_date" placeholder=" "></ion-input>
+      </ion-item>
+
+
+      <ion-item>
+        <ion-label position="floating">License Expiry Date <span class="required">*</span> </ion-label>
+        <ion-input type="date" [(ngModel)]="licenseAddObj.license_end_date" placeholder=" "></ion-input>
+      </ion-item>
+
+
+
+      <ion-button fill="outline" color="primary" class="rightme" (click)="addLicenseNumbers()">Add </ion-button>
+
+      <br />
+      <br />
+
+
+    </span>
+    <br /> <br />
+    <b class="centerme">License numbers list</b>
+    <span *ngIf='agentDetailObj.licenseArr.length==0'>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>You have not added any license number till now !</ion-card-subtitle>
+        </ion-card-header>
+
+      </ion-card>
+    </span>
+    <span *ngIf='agentDetailObj.licenseArr.length>0'>
+      <ion-card *ngFor="let perLicense of agentDetailObj.licenseArr.slice().reverse();let i = index">
+        <ion-card-header>
+          <ion-card-subtitle> {{perLicense.organisation}} license number <b> {{perLicense.license_no}}
+            </b></ion-card-subtitle>
+
+        </ion-card-header>
+        <ion-card-content>Valid from <b> {{perLicense.license_start_date | date: 'longDate'}}</b> to <b>
+            {{perLicense.license_end_date | date: 'longDate' }}</b>
+          <ion-icon name="trash-outline" item-right color="danger" style="float:right" (click)="deleteLicense(i)"
+            class="per-ion-icon">
+
+          </ion-icon>
+
+        </ion-card-content>
+      </ion-card>
+    </span>
+    <span *ngIf='!showLicenceform'>
+      <ion-button fill="clear" color="primary" class="rightme" (click)="showLicenceform=true"> + Add
+        More
+      </ion-button>
+
+    </span>
+
+  </ion-list>
+  <ion-list *ngIf="currentSegment=='Softfile'">
+    <app-fileupload [moduleInfo]="moduleInfoList" (newmoduleInfo)="updateImageInfoFunList($event)"></app-fileupload>
+
+    <ion-card *ngFor="let perFile of agentDetailObj.imageArr.slice().reverse(); let i = index ">
+      <ion-item>
+        <ion-thumbnail slot="start" (click)="viewDoc(perFile)">
+          <img *ngIf="perFile.filetype=='Image'" [src]="perFile.serverpath+perFile.filepath" />
+          <ion-icon style="font-size: xxx-large;" name="document-outline" *ngIf="perFile.filetype!='Image'"></ion-icon>
+        </ion-thumbnail>
+        <ion-label>
+          {{perFile.originalname}}
+          <br />
+          <ion-icon name="download-outline" class="per-ion-icon margin-top-10" (click)="viewDoc(perFile)"
+            item-right></ion-icon>
+          <ion-icon name="trash-outline" color="danger" style="margin-left: 10px;" class="per-ion-icon margin-top-10"
+            (click)="deleteFile(perFile,i)"></ion-icon>
+        </ion-label>
+      </ion-item>
+    </ion-card>
+  </ion-list>
+</ion-content>

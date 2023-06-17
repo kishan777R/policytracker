@@ -1,0 +1,150 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start" (click)="CommonService.showTabMenu =true">
+      <span *ngIf="  CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL == -1">
+        <ion-buttons slot="start" *ngIf="showingListFor=='ALL'" routerLink="../../../../home">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons>
+
+
+
+        <ion-buttons slot="start" *ngIf="showingListFor!='ALL'"
+          routerLink="../../../../agents/agentdetail/{{showingListFor}}/{{idOfthePersonForWhomListIs}}">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons>
+      </span>
+      <span *ngIf="  CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL > -1">
+        <ion-buttons slot="start" (click)=" CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL = -1"
+          routerLink="../../../../accounts/accountsdetail/Account/{{showingListFor}}/{{idOfthePersonForWhomListIs}}/{{CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL}}">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons>
+      </span>
+    </ion-buttons>
+    <ion-title class="ion-text-center">
+
+      <span *ngIf="CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL  == -1">
+        <span *ngIf="showingListFor=='ALL' ">
+          List of {{heading}}
+        </span>
+        <span *ngIf="showingListFor=='Agent'  ">
+          {{heading}}
+          by Agent {{agent_or_user.name}}
+        </span>
+        <span *ngIf="showingListFor=='User'  ">
+          {{heading}}
+          for {{agent_or_user.name}}
+        </span> </span>
+      <span *ngIf="CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL > -1">
+        Policies
+        Under Account {{InfoOfThatAccountForWhichPolcyWillbeListed.account_title}}
+      </span>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true"><span *ngIf="CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL > -1">
+    jab account k andar policy dd kare to account selected chaiye
+  </span>
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">
+
+        <span *ngIf="CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL  == -1">
+          <span *ngIf="showingListFor=='ALL' && CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL == -1">
+            List of {{heading}}
+
+          </span>
+          <span *ngIf="showingListFor=='Agent' && CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL == -1">
+            {{heading}}
+            by Agent {{agent_or_user.name}}
+          </span>
+          <span *ngIf="showingListFor=='User' && CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL == -1">
+            {{heading}}
+            for {{agent_or_user.name}}
+          </span> </span>
+        <span *ngIf="CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL > -1">
+          Policies
+          Under Account {{InfoOfThatAccountForWhichPolcyWillbeListed.account_title}}
+        </span></ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+
+  <ion-fab slot="fixed" *ngIf="CommonService.filteredListAccount && CommonService.filteredListAccount.length>0"
+    routerLink="../../../../accounts/accountsadd/{{account_or_policy}}/{{showingListFor}}/{{idOfthePersonForWhomListIs}}"
+    vertical="bottom" horizontal="end">
+
+    <ion-button item-start color="primary">+ Add
+      {{headingP}} </ion-button>
+
+  </ion-fab>
+
+  <ion-card *ngIf="CommonService.filteredListAccount && CommonService.filteredListAccount.length==0"
+    style="padding:10px">
+    <img src="assets/bank-account-icon.jpg" style="height: 50%;
+    width: 50%;" />
+
+    <ion-card style="padding:1px;border: 1px solid red;">
+      <h5 style="color:red;text-align:center;">
+        No {{headingP}}
+        added till now.
+      </h5>
+    </ion-card> <br /> <br />
+    Hi. You have not added any {{headingP}}
+    till now <span *ngIf="showingListFor=='Agent' && CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL == -1">
+      where helper is Agent {{agent_or_user.name}}
+    </span>
+    <span *ngIf="showingListFor=='User' && CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL == -1">
+      for {{agent_or_user.name}}
+    </span> <span *ngIf="CommonService.iwanttoshowPolicyUnderAccButNotBasedOnURL > -1">
+
+      under Account {{InfoOfThatAccountForWhichPolcyWillbeListed.account_title}}
+    </span> You can add it using below button.
+    <br /> <br />
+
+    <ion-button item-start color="primary"
+      routerLink="../../../../accounts/accountsadd/{{account_or_policy}}/{{showingListFor}}/{{idOfthePersonForWhomListIs}}">+
+      Add
+      {{headingP}}
+    </ion-button>
+  </ion-card>
+
+  <span *ngIf="CommonService.filteredListAccount && CommonService.filteredListAccount.length>0">
+    <div class="mycard" *ngFor="let perAccount of CommonService.filteredListAccount; ">
+      <ion-card-header (click)="viewAccount(perAccount.account_id_int,true)">
+        <ion-card-title> <img alt="  Img" style="width: 50px;height:      50px;"
+            *ngIf="perAccount.organisation_img && perAccount.organisation_img!=''"
+            src="{{perAccount.serverpath}}{{perAccount.organisation_img}}" /> <br />
+          {{perAccount. account_title}}</ion-card-title>
+        <ion-card-subtitle>{{perAccount. organisation}}
+          <span *ngIf="perAccount.bank_or_post_office=='Bank'">
+            (IFSC - {{perAccount.ifsc}})
+          </span>
+
+
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content style="margin-top:-5px;">
+        <span (click)="viewAccount(perAccount.account_id_int,true)">
+          {{headingP}} Holder : {{perAccount. account_holder_name}}
+          <br />
+          {{headingP}} No. : {{perAccount.account_number}}
+          <br />
+          <span *ngIf="perAccount.account_or_policy=='Policy' && perAccount.parent_account_id_int">
+            Parent Account : {{perAccount.parent_account_title}} (Acc. No. : {{perAccount.parent_account_number}})
+            <br />
+          </span>
+
+        </span>
+
+        <ion-icon name="create-outline" style=" margin-top:5px;" class="per-ion-icon"
+          (click)="editAccount(perAccount.account_id_int)" item-right></ion-icon>
+        <ion-icon name="trash-outline" item-right color="danger" style="margin-left:10px;margin-top:5px;"
+          (click)="deleteAccountActionSheet(  perAccount.account_id_int)" class="per-ion-icon"></ion-icon>
+      </ion-card-content>
+    </div>
+
+  </span>
+  <br /> <br />
+</ion-content>
