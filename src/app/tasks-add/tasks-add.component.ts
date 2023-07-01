@@ -42,8 +42,8 @@ export class TasksAddComponent implements OnInit {
         this.taskDetailObj['task_for'] = this.task_for;
       }
       if (this.task_for_id_int && this.task_for_id_int != 0) {
-        this.taskDetailObj['task_for_id_int'] = this.task_for_id_int;      
-          
+        this.taskDetailObj['task_for_id_int'] = this.task_for_id_int;
+
 
       }
 
@@ -135,7 +135,11 @@ export class TasksAddComponent implements OnInit {
 
     this.CommonService.taskList.every((item: any) => {
       if (item.task_id_int == this.task_id_int) {
-        this.taskDetailObj = item;this.taskDetailObj['tasklevel'] = 'Pending';
+        this.taskDetailObj = item;
+        this.taskDetailObj['tasklevel'] = 'Pending';
+        this.taskDetailObj['competedRemarkIfPhsicalDoWereThere'] = [];
+
+
         this.updateDropDownValuesForSelectAccountHolderAndAgent();
         return false;
       }
@@ -179,7 +183,7 @@ export class TasksAddComponent implements OnInit {
     }
   }
   updateDropDownValuesForSelectAccount() {
-    if (this.taskDetailObj['account_id_int'] &&  this.CommonService.accountListArrByIdAsKey[this.taskDetailObj['account_id_int']]) {
+    if (this.taskDetailObj['account_id_int'] && this.CommonService.accountListArrByIdAsKey[this.taskDetailObj['account_id_int']]) {
       this.taskDetailObj['account_title'] = this.CommonService.accountListArrByIdAsKey[this.taskDetailObj['account_id_int']]['account_title'];
       this.accountHardCopyDocArr = this.CommonService.accountListArrByIdAsKey[this.taskDetailObj['account_id_int']]['hardCopyDocArr'];
 
@@ -226,14 +230,14 @@ export class TasksAddComponent implements OnInit {
           } else if (!this.taskDetailObj.task_id_int && item.agent_id_int && item.task_id_int) {
             item.available = false;
             item.selected = false;
-            item.task_name = this.CommonService.taskListArrByIdAsKey[item.task_id_int] ? this.CommonService.taskListArrByIdAsKey[item.task_id_int]['taskname'] :'';
-            item.agent_name =this.CommonService.agentListArrByIdAsKey[item.agent_id_int] ? this.CommonService.agentListArrByIdAsKey[item.agent_id_int]['name'] : '';
+            item.task_name = this.CommonService.taskListArrByIdAsKey[item.task_id_int] ? this.CommonService.taskListArrByIdAsKey[item.task_id_int]['taskname'] : '';
+            item.agent_name = this.CommonService.agentListArrByIdAsKey[item.agent_id_int] ? this.CommonService.agentListArrByIdAsKey[item.agent_id_int]['name'] : '';
           } else {
             item.available = false;
             item.selected = false;
-            item.task_name = this.CommonService.taskListArrByIdAsKey[item.task_id_int] ? this.CommonService.taskListArrByIdAsKey[item.task_id_int]['taskname'] :'';
-            item.agent_name =this.CommonService.agentListArrByIdAsKey[item.agent_id_int] ? this.CommonService.agentListArrByIdAsKey[item.agent_id_int]['name'] : '';
-        }
+            item.task_name = this.CommonService.taskListArrByIdAsKey[item.task_id_int] ? this.CommonService.taskListArrByIdAsKey[item.task_id_int]['taskname'] : '';
+            item.agent_name = this.CommonService.agentListArrByIdAsKey[item.agent_id_int] ? this.CommonService.agentListArrByIdAsKey[item.agent_id_int]['name'] : '';
+          }
         }
       });
     } else {
@@ -248,19 +252,19 @@ export class TasksAddComponent implements OnInit {
             item.selected = true;
           } else if (!this.taskDetailObj.task_id_int && item.agent_id_int && item.task_id_int) {
             item.available = false;
-            item.selected = false; 
-            item.task_name =this.CommonService.taskListArrByIdAsKey[item.task_id_int] ?  this.CommonService.taskListArrByIdAsKey[item.task_id_int]['taskname'] : '';
+            item.selected = false;
+            item.task_name = this.CommonService.taskListArrByIdAsKey[item.task_id_int] ? this.CommonService.taskListArrByIdAsKey[item.task_id_int]['taskname'] : '';
             item.agent_name = this.CommonService.agentListArrByIdAsKey[item.agent_id_int] ? this.CommonService.agentListArrByIdAsKey[item.agent_id_int]['name'] : '';
           } else {
             item.available = false;
             item.selected = false;
-            item.task_name =this.CommonService.taskListArrByIdAsKey[item.task_id_int] ?  this.CommonService.taskListArrByIdAsKey[item.task_id_int]['taskname'] : '';
+            item.task_name = this.CommonService.taskListArrByIdAsKey[item.task_id_int] ? this.CommonService.taskListArrByIdAsKey[item.task_id_int]['taskname'] : '';
             item.agent_name = this.CommonService.agentListArrByIdAsKey[item.agent_id_int] ? this.CommonService.agentListArrByIdAsKey[item.agent_id_int]['name'] : '';
-         }
+          }
         }
       });
     }
- 
+
 
   }
   async addAccountPolicy(AccountOrPolicy: any) {
@@ -271,11 +275,8 @@ export class TasksAddComponent implements OnInit {
     modal.present();
 
     const { data, role } = await modal.onWillDismiss();
-    this.CommonService.agentList.forEach((perAgentUser: any) => {
-      this.CommonService.agentListArrByIdAsKey[perAgentUser.agent_id_int] = perAgentUser;
-    });
-    this.JustagentList = this.CommonService.agentList.filter((item: any) => {
-      return item.working_for_user_or_agent == 'Agent'
+    this.CommonService.accountList.forEach((perAccount: any) => {
+      this.CommonService.accountListArrByIdAsKey[perAccount.account_id_int] = perAccount;
     });
   }
   async adduser(UserOrAgent: any) {
@@ -302,7 +303,7 @@ export class TasksAddComponent implements OnInit {
 
 
   updateDropDownValuesForSelectAccountHolderAndAgent() {
-   
+
     if (this.taskDetailObj['task_for_id_int'] && this.CommonService.agentListArrByIdAsKey[this.taskDetailObj['task_for_id_int']]) {
       this.taskDetailObj['agent_name'] = this.CommonService.agentListArrByIdAsKey[this.taskDetailObj['task_for_id_int']]['name'];
     } else {
@@ -353,8 +354,8 @@ export class TasksAddComponent implements OnInit {
             if (item.selected) {
               item.agent_id_int = this.taskDetailObj.task_for_id_int;
               item.task_id_int = this.taskDetailObj.task_id_int;
-            }else{
-              item.task_id_int =  item.agent_id_int ='';
+            } else {
+              item.task_id_int = item.agent_id_int = '';
             }
           }
           delete item.selected;
@@ -370,8 +371,8 @@ export class TasksAddComponent implements OnInit {
             if (item.selected) {
               item.agent_id_int = this.taskDetailObj.task_for_id_int;
               item.task_id_int = this.taskDetailObj.task_id_int;
-            }else{
-              item.task_id_int =  item.agent_id_int ='';
+            } else {
+              item.task_id_int = item.agent_id_int = '';
             }
           }
           delete item.selected;
@@ -392,7 +393,7 @@ export class TasksAddComponent implements OnInit {
 
         if (data.status) {
           this.CommonService.taskList = data.TaskList;
-          this.CommonService.accountList= undefined;
+          this.CommonService.accountList = undefined;
           this.CommonService.message({ 'message': data.message, color: 'success' })
 
 

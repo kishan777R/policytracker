@@ -14,9 +14,13 @@ const httpOptions = {
 export class CommonService {
   showTabMenu: boolean = false;
   bankList: any;
+  creditDebitList: any = undefined;
+  categoryList: any = undefined;
+  addingOrEditingAccountinecod: any = undefined;
   stateList: any;
   agentList: any = undefined;
   agentListArrByIdAsKey: any = []; accountListArrByIdAsKey: any = [];
+  creditDebitArrByIdAsKey: any = []; categoryArrByIdAsKey: any = [];
   taskList: any = undefined;
   organisation_typeList: any;
   dashboardHeader: any; loading: boolean = false;
@@ -35,7 +39,7 @@ export class CommonService {
   openAgentModalFor: any; openAccountOrPolicyModalFor: any;
   accountTileList: any; polcyTileList: any;
   hometilesListBelowcard: any;
-  account_or_policy: any;
+  account_or_policy: any; filterAccountIdAccounting: any = [];
   iwanttoshowPolicyUnderAccButNotBasedOnURL = -1;
   ngOnInit() {
 
@@ -52,6 +56,85 @@ export class CommonService {
       catchError(this.handleError)
     );
   }
+
+  //Category start
+
+  getCategoryList() {
+
+    return this.http.get<any>(this.uri + 'apipolicy/categorylist/' + this.customerinfo.customer_id_int, httpOptions).pipe(
+      map((data) => {
+
+        console.log(data);
+        data.forEach((item: any) => {
+          this.categoryArrByIdAsKey[item.category_id_int] = item;
+
+        });
+        return data;
+      }
+      ),
+      retry(1),
+      catchError(this.handleError)
+    );
+  }
+  deleteCategory(category_id_int: Number, extraaction: string) {
+    return this.http.delete<any>(this.uri + 'apipolicy/category/' + category_id_int + '/' + extraaction + '/' + this.customerinfo.logged_in_user_id_int + '/' + this.customerinfo.customer_id_int, httpOptions).pipe(
+      retry(1),
+      catchError(this.handleError)
+    );
+  }
+  saveDataOfCategory(data: any) {
+    data['customer_id_int'] = this.customerinfo.customer_id_int;
+    data['logged_in_user_id_int'] = this.customerinfo.logged_in_user_id_int;
+    return this.http.post<any>(this.uri + 'apipolicy/category', data, httpOptions).pipe(
+      retry(1),
+      catchError(this.handleError)
+    );
+  }
+  //Category end
+  //accounting start
+  getparticularRecordInfo(credit_debit_id_int: number) {
+
+    return this.http.get<any>(this.uri + 'apipolicy/credit_debit/' + credit_debit_id_int, httpOptions).pipe(
+
+      retry(1),
+      catchError(this.handleError)
+    );
+  }
+  getCreditDebitList(filteringData: any) {
+    filteringData['customer_id_int'] = this.customerinfo.customer_id_int;
+    return this.http.post<any>(this.uri + 'apipolicy/credit_debitlist', filteringData, httpOptions).pipe(
+      map((data) => {
+
+        data.list.forEach((item: any) => {
+          this.creditDebitArrByIdAsKey[item.credit_debit_id_int] = item;
+
+        });
+        return data;
+      }
+      ), retry(1),
+      catchError(this.handleError)
+    );
+
+  }
+
+  deleteCreditDebit(credit_debit_id_int: Number, extraaction: string = '') {
+    return this.http.delete<any>(this.uri + 'apipolicy/credit_debit/' + credit_debit_id_int + '/' + extraaction + '/' + this.customerinfo.logged_in_user_id_int + '/' + this.customerinfo.customer_id_int, httpOptions).pipe(
+      retry(1),
+      catchError(this.handleError)
+    );
+  }
+  saveDataOCreditDebit(data: any) {
+    data['customer_id_int'] = this.customerinfo.customer_id_int;
+    data['logged_in_user_id_int'] = this.customerinfo.logged_in_user_id_int;
+    return this.http.post<any>(this.uri + 'apipolicy/credit_debit', data, httpOptions).pipe(
+      retry(1),
+      catchError(this.handleError)
+    );
+  }
+
+
+  //accounting end 
+
 
   //account start
   filterAccountListAccodingtoUserOrAgent(showingListFor: any, idOfthePersonForWhomListIs: any) {
@@ -126,11 +209,13 @@ export class CommonService {
     return this.http.get<any>(this.uri + 'apipolicy/accountlist/' + this.customerinfo.customer_id_int, httpOptions).pipe(
       map((data) => {
 
-        console.log(data);
+        this.filterAccountIdAccounting = [];
         data.forEach((item: any) => {
           this.accountListArrByIdAsKey[item.account_id_int] = item;
-
+          this.filterAccountIdAccounting.push({ name: item.account_title, value: item.account_id_int, "selected": false });
         });
+
+
         return data;
       }
       ),

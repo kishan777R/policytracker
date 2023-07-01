@@ -79,7 +79,7 @@
 
   </ion-fab>
 
-  <ion-card *ngIf="CommonService.filteredListAccount && CommonService.filteredListAccount.length==0"
+  <div *ngIf="CommonService.filteredListAccount && CommonService.filteredListAccount.length==0"
     style="padding:10px">
     <img src="assets/bank-account-icon.jpg" style="height: 50%;
     width: 50%;" />
@@ -107,7 +107,7 @@
       Add
       {{headingP}}
     </ion-button>
-  </ion-card>
+  </div>
 
   <span *ngIf="CommonService.filteredListAccount && CommonService.filteredListAccount.length>0">
     <div class="mycard" *ngFor="let perAccount of CommonService.filteredListAccount; ">

@@ -149,18 +149,18 @@ export class TasksComponent implements OnInit {
     });
   }
   insertAccountDetailIntaskList(c: any) {
-  ////console.log('000');
+    ////console.log('000');
     this.CommonService.taskList.forEach((perTask: any) => {
       if (perTask.task_for == 'Agent') {
-      ////console.log('999');
+        ////console.log('999');
 
         if (perTask.account_id_int) {
-        ////console.log('8888');
+          ////console.log('8888');
 
           perTask['account_title'] = this.CommonService.accountListArrByIdAsKey[perTask['account_id_int']] ? this.CommonService.accountListArrByIdAsKey[perTask['account_id_int']]['account_title'] : '';
           perTask.accountHardCopyDocArr = this.CommonService.accountListArrByIdAsKey[perTask['account_id_int']] ? this.CommonService.accountListArrByIdAsKey[perTask['account_id_int']]['hardCopyDocArr'] : [];
           perTask.selectedFoundAcc = false;
-        ////console.log(perTask);
+          ////console.log(perTask);
           let accountHardCopyDocArr: any[] = [];
           perTask.accountHardCopyDocArr.forEach((item: any) => {
 
@@ -171,8 +171,8 @@ export class TasksComponent implements OnInit {
 
               item.selected = true; perTask.selectedFoundAcc = true;
 
-            ////console.log("match found", item.selected = true);
-            ////console.log(item)
+              ////console.log("match found", item.selected = true);
+              ////console.log(item)
 
             } else {
 
@@ -183,7 +183,7 @@ export class TasksComponent implements OnInit {
           }); //console.log(accountHardCopyDocArr); //console.log('accountHardCopyDocArr');
           perTask.accountHardCopyDocArr = accountHardCopyDocArr;
 
-        ////console.log(perTask);
+          ////console.log(perTask);
         } else {
           perTask.accountHardCopyDocArr = [];
           perTask.account_title = '';
@@ -400,7 +400,7 @@ export class TasksComponent implements OnInit {
       });
     }
   }
-  policyHardCopyDocArrTemp:any = []; accountHardCopyDocArrTemp:any = [];
+  policyHardCopyDocArrTemp: any = []; accountHardCopyDocArrTemp: any = [];
   changeStatusOfTask(taskfordetailobj: any) {
     if (this.CommonService.loading) {
       this.CommonService.message({ 'message': "Wait for previous process ", color: 'warning' });
@@ -418,14 +418,16 @@ export class TasksComponent implements OnInit {
           taskfordetailobj.tasklevel = 'Completed';
         }
         this.CommonService.loading = true;
-        
-        this.accountHardCopyDocArrTemp =[]; this.policyHardCopyDocArrTemp=[];
+
+        this.accountHardCopyDocArrTemp = []; this.policyHardCopyDocArrTemp = [];
+        let competedRemarkIfPhsicalDoWereThereStrArr: any[] = [];
         if (taskfordetailobj.account_id_int) {
-           
+
           taskfordetailobj.accountHardCopyDocArr.forEach((item: any) => {
-            this.accountHardCopyDocArrTemp.push({...item});
+            this.accountHardCopyDocArrTemp.push({ ...item });
             if (taskfordetailobj.tasklevel == 'Completed') {
               if (item.selected) {
+                competedRemarkIfPhsicalDoWereThereStrArr.push({ account_or_policy: 'Account', account_or_policy_title: taskfordetailobj.account_title, doc_name: item.document_name })
                 item.agent_id_int = '';
                 item.task_id_int = '';
               }
@@ -434,14 +436,16 @@ export class TasksComponent implements OnInit {
 
           });
         } else {
-          taskfordetailobj.accountHardCopyDocArr = []; 
+          taskfordetailobj.accountHardCopyDocArr = [];
         }
 
         if (taskfordetailobj.policy_id_int) {
-         
+
           taskfordetailobj.policyHardCopyDocArr.forEach((item: any) => {
-            this.policyHardCopyDocArrTemp.push({...item});   if (taskfordetailobj.tasklevel == 'Completed') {
+            this.policyHardCopyDocArrTemp.push({ ...item }); if (taskfordetailobj.tasklevel == 'Completed') {
               if (item.selected) {
+                competedRemarkIfPhsicalDoWereThereStrArr.push({ account_or_policy: 'Policy', account_or_policy_title: taskfordetailobj.policy_title, doc_name: item.document_name })
+
                 item.agent_id_int = '';
                 item.task_id_int = '';
               }
@@ -453,10 +457,12 @@ export class TasksComponent implements OnInit {
           });
         } else {
           taskfordetailobj.policyHardCopyDocArr = [];
-           
+
         }
-
-
+        taskfordetailobj.competedRemarkIfPhsicalDoWereThere = [];
+        if (taskfordetailobj.tasklevel == 'Completed') {
+          taskfordetailobj.competedRemarkIfPhsicalDoWereThere = competedRemarkIfPhsicalDoWereThereStrArr;
+        }
 
 
         this.changeStatusOfTaskSub = this.CommonService.saveDataOfTask(taskfordetailobj).subscribe((data: any) => {

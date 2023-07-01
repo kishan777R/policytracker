@@ -116,31 +116,7 @@ export class AccountsAddPage {
     });
   }
   showHardDocsform = true;
-  addHardCopiesDoc() {
-    if (this.hardCopyDetailObj.document_name == '') {
-      this.CommonService.message({ 'message': "If you want to add nominee details then you need to fill all required fields !", color: 'warning' })
-    } else {
-      let newArray = this.accountDetailObj.hardCopyDocArr.filter((item: any) => {
-        return item.document_name == this.hardCopyDetailObj.document_name;
-      });
 
-      if (newArray.length > 0) {
-        this.CommonService.message({ 'message': "Document name already exists !", color: 'warning' })
-      }
-      else {
-        this.accountDetailObj.hardCopyDocArr.push({
-          ...this.hardCopyDetailObj
-        });
-        this.hardCopyDetailObj = { 'document_name': '', 'agent_id_int': '', 'task_id_int': "" };
-        if (this.accountDetailObj.hardCopyDocArr.length == 0) {
-          this.showHardDocsform = true;
-        } else {
-          this.showHardDocsform = false;
-        }
-      }
-    }
-
-  }
   deleteHardCopiesDoc(index: number) {
     if (confirm('Are you sure you want to delete ?')) {
       this.accountDetailObj.hardCopyDocArr.splice(this.accountDetailObj.hardCopyDocArr.length - 1 - index, 1);
@@ -151,6 +127,51 @@ export class AccountsAddPage {
       }
     }
   }
+  isEditingHardCopyName: number = -1;
+  editHardCopiesDoc(index: number) {
+    this.isEditingHardCopyName = this.accountDetailObj.hardCopyDocArr.length - 1 - index; this.showHardDocsform = true;
+    this.hardCopyDetailObj['document_name'] = this.accountDetailObj.hardCopyDocArr[this.isEditingHardCopyName].document_name;
+  }
+
+
+  addHardCopiesDoc() {
+    let mSub = 'Add';
+    if (this.isEditingHardCopyName != -1) {
+      mSub = 'Update';
+    }
+    if (this.hardCopyDetailObj.document_name == '') {
+      this.CommonService.message({ 'message': "If you want to " + mSub + " nominee details then you need to fill all required fields !", color: 'warning' })
+    } else {
+      let newArray = this.accountDetailObj.hardCopyDocArr.filter((item: any, i: any) => {
+        return item.document_name == this.hardCopyDetailObj.document_name && i != this.isEditingHardCopyName;
+      });
+
+      if (newArray.length > 0) {
+        this.CommonService.message({ 'message': "Document name already exists !", color: 'warning' })
+      }
+      else {
+        if (this.isEditingHardCopyName == -1) {
+          this.accountDetailObj.hardCopyDocArr.push({
+            ...this.hardCopyDetailObj
+          });
+
+        } else {
+          this.accountDetailObj.hardCopyDocArr[this.isEditingHardCopyName].document_name = this.hardCopyDetailObj.document_name;
+          this.isEditingHardCopyName = -1;
+        }
+
+        this.hardCopyDetailObj = { 'document_name': '', 'agent_id_int': '', 'task_id_int': "" };
+        if (this.accountDetailObj.hardCopyDocArr.length == 0) {
+          this.showHardDocsform = true;
+        } else {
+          this.showHardDocsform = false;
+        }
+      }
+    }
+
+
+  }
+
   showNomineeform = true;
 
   addNomineeNumbers() {
@@ -179,8 +200,7 @@ export class AccountsAddPage {
     this.accountDetailObj.nomineeArr.forEach((item: any) => {
       alreadyNomnieeArr.push(item.nominee_id);
     });
-
-
+    
     this.CommonService.agentList.forEach((item: any) => {
 
       if (item.working_for_user_or_agent == 'User' && alreadyNomnieeArr.includes(item.agent_id_int) == false) {
@@ -254,6 +274,7 @@ export class AccountsAddPage {
     });
   }
   loadAccountInfo() {
+
     if (this.account_id_int) {
       this.accountDetailObj['account_id_int'] = this.account_id_int;
       if (this.CommonService.accountList) {
@@ -262,7 +283,12 @@ export class AccountsAddPage {
         this.getAccountList();
       }
     } else {
-      this.showNomineeform = true;
+
+      this.getAvailableNomineesList();
+
+      if (!this.CommonService.accountList) {
+        this.getAccountList();
+      } this.showNomineeform = true;
     }
   }
 
@@ -287,6 +313,7 @@ export class AccountsAddPage {
         foundDetail = true;
         this.accountDetailObj = item;
         this.updateDropDownValuesForSelectAccountHolderAndAgent();
+        this.updateDropDownValuesForSelectParentAccount();
         if (this.accountDetailObj.nomineeArr.length == 0) {
           this.showNomineeform = true;
         } else {
@@ -318,6 +345,15 @@ export class AccountsAddPage {
     }
 
   }
+  updateDropDownValuesForSelectParentAccount() {
+
+    if (this.accountDetailObj['parent_account_id_int'] && this.CommonService.accountListArrByIdAsKey[this.accountDetailObj['parent_account_id_int']]) {
+      this.accountDetailObj['parent_account_name'] = this.CommonService.accountListArrByIdAsKey[this.accountDetailObj['parent_account_id_int']]['account_title'];
+    } else {
+      this.accountDetailObj['parent_account_name'] = '';
+    }
+    
+  }
   updateDropDownValuesForSelectAccountHolderAndAgent() {
 
     if (this.accountDetailObj['user_id_int'] && this.CommonService.agentListArrByIdAsKey[this.accountDetailObj['user_id_int']]) {
@@ -331,7 +367,6 @@ export class AccountsAddPage {
       this.accountDetailObj['agent_name'] = '';
     }
   }
-
   assignNomineeName() {
     let tmpNominee: any[] = [];
     this.accountDetailObj.nomineeArr.forEach((perNomnee: any) => {
@@ -345,37 +380,48 @@ export class AccountsAddPage {
   segmentChange(events: any) {
     this.currentSegment = events.detail.value;
   }
-
+  async addAccountPolicy(AccountOrPolicy: any) {
+    this.CommonService.openAccountOrPolicyModalFor = AccountOrPolicy;
+    const modal = await this.modalCtrl.create({
+      component: AccountsAddPage,
+    });
+    modal.present();
+    this.CommonService.accountList.forEach((perAccount: any) => {
+      this.CommonService.accountListArrByIdAsKey[perAccount.account_id_int] = perAccount;
+    });
+    const { data, role } = await modal.onWillDismiss();
+  }
   saveDataOfAccount() {
 
     if (!this.accountDetailObj.bank_or_post_office || !this.accountDetailObj.organisation) {
-      this.CommonService.message({ 'message': "Please select where are you opening account !", color: 'warning' });
+      this.CommonService.message({ 'message': "Please select where are you opening " + this.headingP + " !", color: 'warning' });
 
     } else if (!this.accountDetailObj.postoffice_bank_address) {
       this.CommonService.message({ 'message': "Please enter  " + this.accountDetailObj.organisation + ' branch address !', color: 'warning' });
 
     } else if (!this.accountDetailObj.account_title) {
-      this.CommonService.message({ 'message': "Please enter Account Title", color: 'warning' });
+      this.CommonService.message({ 'message': "Please enter " + this.headingP + " Title", color: 'warning' });
 
     } else if (!this.accountDetailObj.user_id_int) {
-      this.CommonService.message({ 'message': "Please select Account Holder", color: 'warning' });
+      this.CommonService.message({ 'message': "Please select " + this.headingP + " Holder", color: 'warning' });
 
     } else if (!this.accountDetailObj.mobile_given_for_account) {
-      this.CommonService.message({ 'message': "Please enter Mobile Number you are using for this account !", color: 'warning' });
+      this.CommonService.message({ 'message': "Please enter Mobile Number you are using for this " + this.headingP + " !", color: 'warning' });
 
     } else if (!this.accountDetailObj.email_given_for_account) {
-      this.CommonService.message({ 'message': "Please enter Email Id you are using for this account !", color: 'warning' });
+      this.CommonService.message({ 'message': "Please enter Email Id you are using for this " + this.headingP + " !", color: 'warning' });
 
     } else if (!this.accountDetailObj.address_given_for_account) {
-      this.CommonService.message({ 'message': "Please enter Account Holder Address you are using for this account !", color: 'warning' });
+      this.CommonService.message({ 'message': "Please enter " + this.headingP + " Holder Address you are using for this " + this.headingP + " !", color: 'warning' });
 
+    } else if (this.headingP == 'Policy' && this.accountDetailObj.is_dependent == 'Yes' && !this.accountDetailObj.parent_account_id_int) {
+      this.CommonService.message({ 'message': "Please select Parent Account for this policy!", color: 'warning' });
     }
-    else if (this.accountDetailObj.bank_or_post_office == 'Bank' && !this.accountDetailObj.account_type) {
+    else if (this.headingP == 'Account' && this.accountDetailObj.bank_or_post_office == 'Bank' && !this.accountDetailObj.account_type) {
       this.CommonService.message({ 'message': "Please select Account Type !", color: 'warning' });
-
     }
     else if (!this.accountDetailObj.account_number) {
-      this.CommonService.message({ 'message': "Please enter Account Number !", color: 'warning' });
+      this.CommonService.message({ 'message': "Please enter " + this.headingP + " Number !", color: 'warning' });
 
     } else if (!this.accountDetailObj.unique_id_for_account) {
       this.CommonService.message({ 'message': "Please enter  Customer Id/CIF Id  !", color: 'warning' });
@@ -384,11 +430,19 @@ export class AccountsAddPage {
       this.CommonService.message({ 'message': "Please enter  Bank IFSC Code  !", color: 'warning' });
 
     } else if (!this.accountDetailObj.account_opening_date) {
-      this.CommonService.message({ 'message': "Please enter  Account opening date   !", color: 'warning' });
+      this.CommonService.message({ 'message': "Please enter  " + this.headingP + " opening date   !", color: 'warning' });
+
+    } else if (this.headingP == 'Policy' && !this.accountDetailObj.account_maturity_date) {
+      this.CommonService.message({ 'message': "Please enter  " + this.headingP + " maturity date   !", color: 'warning' });
+
+    } else if (this.headingP == 'Policy' && this.accountDetailObj.account_opening_date >= this.accountDetailObj.account_maturity_date) {
+      this.CommonService.message({ 'message': "Please enter  " + this.headingP + " maturity date greater than " + this.headingP + "  opening date  !", color: 'warning' });
 
     }
     else {
-
+      if (this.headingP == 'Policy' && this.accountDetailObj.is_dependent == 'No') {
+        this.accountDetailObj.parent_account_id_int = '';
+      }
       this.CommonService.loading = true;
       this.saveDataSub = this.CommonService.saveDataOfAccount(this.accountDetailObj).subscribe((data: any) => {
 

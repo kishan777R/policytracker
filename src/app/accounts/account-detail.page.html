@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" *ngIf="accountDetailObj">
     <ion-toolbar>
         <ion-buttons slot="start">
             <ion-buttons slot="start"
@@ -176,7 +176,9 @@
                     <ion-label position="floating">Document Name<span class="required">*</span></ion-label>
                     <ion-input type="text" placeholder="Passbook" [(ngModel)]="hardCopyDetailObj.document_name"></ion-input>
                   </ion-item>
-                  <ion-button fill="outline" color="primary" class="rightme" (click)="addHardCopiesDoc()">Add </ion-button>
+                  <ion-button fill="outline" color="primary" class="rightme" (click)="addHardCopiesDoc()">
+                    
+                {{isEditingHardCopyName==-1 ? 'Add':'Update'}}</ion-button>
           
                   <br /> <br /> <br /> <br />
                 </span>
@@ -206,10 +208,12 @@
                               
                              <b>{{perhardFile.task_name}}</b> 
                           </span>
+                         
                         <ion-icon name="trash-outline" item-right color="danger" style="float:right"
                           (click)="deleteHardCopiesDoc(i)" class="per-ion-icon">
           
-                        </ion-icon>
+                        </ion-icon>  <ion-icon name="create-outline" class="per-ion-icon" style="float:right" (click)="editHardCopiesDoc(i)"
+                        item-right></ion-icon>
                       </ion-card-subtitle>
           
                     </ion-card-header>

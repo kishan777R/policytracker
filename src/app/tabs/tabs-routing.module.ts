@@ -14,6 +14,9 @@ const routes: Routes = [
       {
         path: 'accounts',
         loadChildren: () => import('../accounts/accounts.module').then(m => m.AccountsPageModule)
+      }, {
+        path: 'accounting',
+        loadChildren: () => import('../accounting/accounting.module').then(m => m.AccountingModule)
       },
       {
         path: 'agents',

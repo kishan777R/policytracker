@@ -169,7 +169,7 @@ export class AccountsPage {
   }
   viewAccount(account_id_int: Number, clicked: boolean) {
     this.goingToAddEditpage = true;
-    this.router.navigate(['tabs/accounts/accountsdetail/' + this.account_or_policy + '/' + this.showingListFor + '/' + this.idOfthePersonForWhomListIs + '/' + account_id_int]);
+     this.router.navigate(['tabs/accounts/accountsdetail/' + this.account_or_policy + '/' + this.showingListFor + '/' + this.idOfthePersonForWhomListIs + '/' + account_id_int]);
   }
   deleteAccount(account_id_int: Number, extraaction: string) {
 

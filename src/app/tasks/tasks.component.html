@@ -10,8 +10,8 @@
     </ion-title>
   </ion-toolbar>
 </ion-header>
- 
-<ion-content [fullscreen]="true" >
+
+<ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">{{task_for}} <span
@@ -30,11 +30,9 @@
     <ion-button item-start color="primary" (click)="routeToAddTasks()">+ Assign
       Task </ion-button>
   </ion-fab>
-  Note - When deleteing task...if not competed..to account se rrlated hard py wapas user ko dall deni h agar agent ko
-  assign h to
-  <br />
-  Niche list me account name and policy name bhi dikhana h..policy renew ka bhi bnana h
-  <ion-card *ngIf="filteredTasks && filteredTasks.length==0" style="padding:10px">
+   
+  Notification bhejna h task ka..policy renew ka bhi bnana h
+  <div *ngIf="filteredTasks && filteredTasks.length==0" style="padding:10px">
 
     <img src="assets/task-icon.jpg" style="height: 50%;
     width: 50%;" />
@@ -49,7 +47,7 @@
     <br /> <br />
     <ion-button item-start color="primary" (click)="routeToAddTasks()">+ Assign
       Task</ion-button>
-  </ion-card>
+  </div>
 
   <div *ngIf="filteredTasks && filteredTasks.length>0" class="centerme"><br />
     <ion-chip class="form-chip-reactangle" (click)="tasklevel_pending=!tasklevel_pending;updateSelectedArr()  "
@@ -59,7 +57,7 @@
     <ion-chip class="form-chip-reactangle" (click)="tasklevel_completed=!tasklevel_completed;updateSelectedArr()  "
       [color]="tasklevel_completed ? 'secondary' :  'dark'">Completed</ion-chip>
   </div>
-  <ion-card *ngIf="filteredTasks && filteredTasks.length>0 && filteredTasks2 && filteredTasks2.length==0 "
+  <span *ngIf="filteredTasks && filteredTasks.length>0 && filteredTasks2 && filteredTasks2.length==0 "
     style="padding:10px">
 
 
@@ -68,7 +66,7 @@
         No filtered data found. Try to reset filtered parameters
       </h5>
     </ion-card>
-  </ion-card>
+  </span>
   <ion-list *ngIf="filteredTasks2 && filteredTasks2.length>0">
 
     <ion-item detail="true" class="itemborder" *ngFor="let perTask of filteredTasks2; let i = index ">
@@ -98,6 +96,13 @@
           <b *ngIf="perTask.tasklevel=='Completed'" style="color:green">
             Completed ({{perTask.complete_date | date: 'longDate'}})
           </b> <br />
+          Related Account : {{perTask.account_title}}
+
+          <br />
+          Related policy : {{perTask.policy_title}}
+
+          <br />
+
           Task For : <span *ngIf="perTask.task_for=='My'">
             Me
           </span> <span *ngIf="perTask.task_for=='Agent'">
@@ -120,15 +125,13 @@
         </span>
 
 
-        <ion-chip id="open-modal-status{{ i}}" style="float: right;" class="form-chip-reactangle" size="small"
-          fill="outline" (click)="showingWhichSectionInModal='StatusChange'"
+        <ion-chip id="open-modal-status{{ i}}" *ngIf="perTask.tasklevel!=='Completed'" style="float: right;"
+          class="form-chip-reactangle" size="small" fill="outline" (click)="showingWhichSectionInModal='StatusChange'"
           [color]="perTask.tasklevel=='Pending' ? 'primary' : perTask.tasklevel=='Inprogress' ? 'success' :  'medium'">
           <span *ngIf="perTask.tasklevel=='Pending'">
             Make it In-Progress
           </span> <span *ngIf="perTask.tasklevel=='Inprogress'">
             Make it Completed
-          </span> <span *ngIf="perTask.tasklevel=='Completed'">
-            Task History
           </span>
         </ion-chip>
       </ion-label>
@@ -145,70 +148,129 @@
           <div style="min-height:90%;overflow-y: scroll;">
 
 
-            <p class="centerme" style="padding: 10px;"> {{taskfordetailobj.taskdetail}} </p>
-            <span
-              *ngIf="taskfordetailobj.selectedFoundAcc && taskfordetailobj.accountHardCopyDocArr.length>0 && taskfordetailobj.task_for=='Agent'">
+            <p style="padding: 10px;"> {{taskfordetailobj.taskdetail}} </p>
 
-              <h6 style="margin-left: 10px;" *ngIf=" taskfordetailobj.selectedFoundAcc"> {{taskfordetailobj.account_title}}
-                account's physical documents you have given to
-                agent  {{taskfordetailobj.agentname}}</h6>
-
-              <span *ngFor="let perhardFile of taskfordetailobj.accountHardCopyDocArr; let i = index ">
-                <span *ngIf=" perhardFile.selected">
-
-                  <ion-chip class="form-chip" *ngIf=" perhardFile.selected"
-                    [color]="perhardFile.selected==true ? 'secondary' :  'dark'">
-                    {{perhardFile.document_name}}
-                  </ion-chip> </span>
-              </span>
-
-
-
-            </span>
-            <br />
-            <span
-              *ngIf="taskfordetailobj.selectedFoundPolicy && taskfordetailobj.policyHardCopyDocArr.length>0 && taskfordetailobj.task_for=='Agent'">
-
-              <h6 style="margin-left: 10px;"  *ngIf=" taskfordetailobj.selectedFoundPolicy"> {{taskfordetailobj.policy_title}}
-                policy's physical documents you have given to
-                agent {{taskfordetailobj.agentname}} </h6>
-              <span *ngFor="let perhardFile of taskfordetailobj.policyHardCopyDocArr; let i = index ">
-                <span *ngIf="   perhardFile.selected">
-
-                  <ion-chip class="form-chip" *ngIf="  perhardFile.selected"
-                    [color]="perhardFile.selected==true ? 'secondary' :  'dark'">
-                    {{perhardFile.document_name}}
-                  </ion-chip> </span>
-              </span>
-
-
-
-            </span>
-
-
-            <app-fileupload [moduleInfo]="moduleInfoList"
-              (newmoduleInfo)="updateImageInfoFun($event,taskfordetailobj)"></app-fileupload>
-            <br />
-            <ion-card *ngFor="let perFile of taskfordetailobj.imageArr.slice().reverse(); let i = index ">
-              <ion-item>
-                <ion-thumbnail slot="start" (click)="viewDoc(perFile)">
-                  <img *ngIf="perFile.filetype=='Image'" [src]="perFile.serverpath+perFile.filepath" />
-                  <ion-icon style="font-size: xxx-large;" name="document-outline"
-                    *ngIf="perFile.filetype!='Image'"></ion-icon>
-                </ion-thumbnail>
-                <ion-label>
-                  <span (click)="viewDoc(perFile)">
-                    {{perFile.originalname}}
-                    <br />
-                  </span>
-
-                  <ion-icon name="download-outline" class="per-ion-icon margin-top-10" item-right
-                    (click)="viewDoc(perFile)"></ion-icon>
-                  <ion-icon name="trash-outline" color="danger" style="margin-left: 10px;"
-                    class="per-ion-icon margin-top-10" (click)="deleteFile(perFile,i,taskfordetailobj)"></ion-icon>
-                </ion-label>
-              </ion-item>
+            <div class="mycard" *ngIf="taskfordetailobj.tasklevel=='Inprogress' || taskfordetailobj.tasklevel=='Completed'">
+              <h4 class="centerme"
+              > Task History
+            </h4>
+            <ion-card style="padding: 10px;"
+              *ngIf="taskfordetailobj.tasklevel=='Inprogress' || taskfordetailobj.tasklevel=='Completed'">
+              In-progress Date - {{taskfordetailobj.inprogress_date | date: 'longDate'}}
+              <br />
+              {{taskfordetailobj.inprogress_remark}}
             </ion-card>
+            <ion-card style="padding: 10px;" *ngIf="  taskfordetailobj.tasklevel=='Completed'">
+              Complete Date - {{taskfordetailobj.complete_date | date: 'longDate'}}
+              <br />
+              {{taskfordetailobj.complete_remark}}
+
+            </ion-card>
+            </div>
+            
+            
+            <span>
+              <h6 style="padding-left: 10px;padding-right: 10px;"
+                *ngIf="   (taskfordetailobj.competedRemarkIfPhsicalDoWereThere.length>0  || taskfordetailobj.imageArr.length>0) && taskfordetailobj.task_for=='Agent'">
+                Documents given to {{taskfordetailobj.task_for}} {{taskfordetailobj.agentname}}
+              </h6>
+
+              <span *ngIf=" taskfordetailobj.tasklevel=='Completed' &&
+              taskfordetailobj.competedRemarkIfPhsicalDoWereThere.length>0 && taskfordetailobj.task_for=='Agent'">
+                <div class="mycard">
+                  <h6 style="padding-left: 10px;padding-right: 10px;" align="center"> Physical Documents </h6>
+                  <span
+                    *ngFor="let perhardFileWasGiven of taskfordetailobj.competedRemarkIfPhsicalDoWereThere; let i = index ">
+
+
+
+                    <ion-card style="padding: 10px;">
+                      {{perhardFileWasGiven.account_or_policy}} {{perhardFileWasGiven.account_or_policy_title}}
+                      <br /> {{perhardFileWasGiven.doc_name}}
+                    </ion-card> </span>
+
+
+                  <br />
+                </div>
+              </span>
+
+              <span
+                *ngIf=" taskfordetailobj.tasklevel!='Completed' && (taskfordetailobj.selectedFoundAcc || taskfordetailobj.selectedFoundPolicy)"><br />
+                <div class="mycard">
+                  <h6 style="padding-left: 10px;padding-right: 10px;" align="center"> Physical Documents </h6> <span
+                    *ngIf="taskfordetailobj.selectedFoundAcc && taskfordetailobj.accountHardCopyDocArr.length>0 && taskfordetailobj.task_for=='Agent'">
+                    <ion-card style="padding: 10px;">
+                      <h6 style="margin-left: 10px;" *ngIf=" taskfordetailobj.selectedFoundAcc">
+                        Account - {{taskfordetailobj.account_title}} </h6>
+
+
+                      <span *ngFor="let perhardFile of taskfordetailobj.accountHardCopyDocArr; let i = index ">
+
+                        <span *ngIf=" perhardFile.selected">
+
+                          <ion-chip class="form-chip" *ngIf=" perhardFile.selected"
+                            [color]="perhardFile.selected==true ? 'secondary' :  'dark'">
+                            {{perhardFile.document_name}}
+                          </ion-chip> </span>
+                      </span>
+                    </ion-card>
+
+
+                  </span>
+                  <br />
+                  <span
+                    *ngIf="taskfordetailobj.selectedFoundPolicy && taskfordetailobj.policyHardCopyDocArr.length>0 && taskfordetailobj.task_for=='Agent'">
+                    <ion-card style="padding: 10px;">
+                      <h6 style="margin-left: 10px;" *ngIf=" taskfordetailobj.selectedFoundPolicy">
+                        Policy - {{taskfordetailobj.policy_title}}
+                      </h6>
+                      <span *ngFor="let perhardFile of taskfordetailobj.policyHardCopyDocArr; let i = index ">
+                        <span *ngIf="   perhardFile.selected">
+
+                          <ion-chip class="form-chip" *ngIf="  perhardFile.selected"
+                            [color]="perhardFile.selected==true ? 'secondary' :  'dark'">
+                            {{perhardFile.document_name}}
+                          </ion-chip> </span>
+                      </span>
+                    </ion-card>
+
+                  </span> <br />
+                </div>
+              </span>
+
+
+
+              <div [class]="taskfordetailobj.tasklevel!='Completed' || taskfordetailobj.imageArr.length>0 ? 'mycard':''">
+                <h6 style="padding-left: 10px;padding-right: 10px;" align="center"
+                  *ngIf="taskfordetailobj.imageArr.length>0"> Digital
+                  Documents </h6>
+                <app-fileupload [moduleInfo]="moduleInfoList" *ngIf="taskfordetailobj.tasklevel!='Completed'"
+                  (newmoduleInfo)="updateImageInfoFun($event,taskfordetailobj)"></app-fileupload>
+
+
+                <ion-card *ngFor="let perFile of taskfordetailobj.imageArr.slice().reverse(); let i = index ">
+                  <ion-item>
+                    <ion-thumbnail slot="start" (click)="viewDoc(perFile)">
+                      <img *ngIf="perFile.filetype=='Image'" [src]="perFile.serverpath+perFile.filepath" />
+                      <ion-icon style="font-size: xxx-large;" name="document-outline"
+                        *ngIf="perFile.filetype!='Image'"></ion-icon>
+                    </ion-thumbnail>
+                    <ion-label>
+                      <span (click)="viewDoc(perFile)">
+                        {{perFile.originalname}}
+                        <br />
+                      </span>
+
+                      <ion-icon name="download-outline" class="per-ion-icon margin-top-10" item-right
+                        (click)="viewDoc(perFile)"></ion-icon>
+                      <ion-icon name="trash-outline" *ngIf="  taskfordetailobj.tasklevel!='Completed'" color="danger"
+                        style="margin-left: 10px;" class="per-ion-icon margin-top-10"
+                        (click)="deleteFile(perFile,i,taskfordetailobj)"></ion-icon>
+                    </ion-label>
+                  </ion-item>
+                </ion-card>
+              </div>
+            </span>
           </div>
         </ion-content>
       </ng-template>
@@ -218,8 +280,8 @@
 
   <span *ngFor="let taskfordetailobj of filteredTasks2; let i = index ">
     <ion-modal *ngIf="filteredTasks2 && filteredTasks2.length>0  " #modal trigger="open-modal-status{{i}}"
-      [initialBreakpoint]="1" [breakpoints]="[0, 0.25, 0.5, 0.75,0.85,0.90,1]"
-      (ionModalDidDismiss)="getFilteredTasksList(7)" >
+      [initialBreakpoint]="0.75" [breakpoints]="[0, 0.25, 0.5, 0.75,0.85,0.90,1]"
+      (ionModalDidDismiss)="getFilteredTasksList(7)">
       <ng-template>
         <ion-content><span *ngIf="taskfordetailobj.tasklevel!=='Completed'">
             <h3 align="center">{{taskfordetailobj.taskname}}</h3>
@@ -250,50 +312,7 @@
               </ion-item>
             </span>
 
-            <span
-              *ngIf=" taskfordetailobj.tasklevel=='Inprogress' && (taskfordetailobj.selectedFoundAcc || taskfordetailobj.selectedFoundPolicy)"><br />
-              <span
-                *ngIf="taskfordetailobj.selectedFoundAcc && taskfordetailobj.accountHardCopyDocArr.length>0 && taskfordetailobj.task_for=='Agent'">
 
-                <h6 style="margin-left: 10px;" *ngIf=" taskfordetailobj.selectedFoundAcc"> {{taskfordetailobj.account_title}}
-                  account's physical documents you have given to
-                  agent {{taskfordetailobj.agentname}}</h6>
-                  
-                 
-                <span *ngFor="let perhardFile of taskfordetailobj.accountHardCopyDocArr; let i = index ">
-              
-                  <span *ngIf=" perhardFile.selected">
-
-                    <ion-chip class="form-chip" *ngIf=" perhardFile.selected"
-                      [color]="perhardFile.selected==true ? 'secondary' :  'dark'">
-                      {{perhardFile.document_name}}
-                    </ion-chip> </span>
-                </span>
-
-
-
-              </span>
-              <br />
-              <span
-                *ngIf="taskfordetailobj.selectedFoundPolicy && taskfordetailobj.policyHardCopyDocArr.length>0 && taskfordetailobj.task_for=='Agent'">
-
-                <h6 style="margin-left: 10px;" *ngIf=" taskfordetailobj.selectedFoundPolicy"> {{taskfordetailobj.policy_title}}
-                  policy's physical documents you have given to
-                  agent {{taskfordetailobj.agentname}} </h6>
-                <span *ngFor="let perhardFile of taskfordetailobj.policyHardCopyDocArr; let i = index ">
-                  <span *ngIf="   perhardFile.selected">
-
-                    <ion-chip class="form-chip" *ngIf="  perhardFile.selected"
-                      [color]="perhardFile.selected==true ? 'secondary' :  'dark'">
-                      {{perhardFile.document_name}}
-                    </ion-chip> </span>
-                </span>
-
-
-
-              </span>  <br />
-            </span>
-          
 
 
             <ion-chip *ngIf="taskfordetailobj.tasklevel!=='Completed'" style="float: right;"
@@ -310,7 +329,7 @@
               *ngIf="taskfordetailobj.tasklevel=='Inprogress' && (taskfordetailobj.selectedFoundAcc || taskfordetailobj.selectedFoundPolicy)">
               We will consider that at the time of task completion you have recieved all physical documents</p>
 
-            <br /><br /><br />
+            <br /><br /> 
           </span>
 
           <h4 class="centerme"

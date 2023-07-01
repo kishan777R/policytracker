@@ -56,7 +56,10 @@
       <br /> {{agentDetailObj.address}} {{agentDetailObj.city}} {{agentDetailObj.state}} {{agentDetailObj.pincode}}
     </ion-card-subtitle> </ion-card-header>
 
-    <ion-button fill="clear" [hidden]="working_for_user_or_agent=='User'" id="open-modal">Check Licenses of {{agentDetailObj.name}} </ion-button>
+    <ion-button fill="clear"  
+     [hidden]="working_for_user_or_agent=='User'" id="open-modal">
+     Check agent Licenses  
+     </ion-button>
 
 
   <ion-grid [fixed]="true" *ngFor="let perRow of tileList ">

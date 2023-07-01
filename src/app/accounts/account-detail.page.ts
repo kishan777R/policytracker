@@ -375,22 +375,38 @@ export class AccountsDetailPage {
   hardCopyDetailObj: any = { 'document_name': '', 'agent_id_int': '', 'task_id_int': "" };
 
   showHardDocsform = true;
+
+  isEditingHardCopyName: number = -1;
+  editHardCopiesDoc(index: number) {
+    this.isEditingHardCopyName = this.accountDetailObj.hardCopyDocArr.length - 1 - index; this.showHardDocsform = true;
+    this.hardCopyDetailObj['document_name'] = this.accountDetailObj.hardCopyDocArr[this.isEditingHardCopyName].document_name;
+  }
+
   addHardCopiesDoc() {
+    let mSub = 'Add';
+    if (this.isEditingHardCopyName != -1) {
+      mSub = 'Update';
+    }
     if (this.hardCopyDetailObj.document_name == '') {
-      this.CommonService.message({ 'message': "If you want to add nominee details then you need to fill all required fields !", color: 'warning' })
+      this.CommonService.message({ 'message': "If you want to " + mSub + " nominee details then you need to fill all required fields !", color: 'warning' })
     } else {
-      let newArray = this.accountDetailObj.hardCopyDocArr.filter((item: any) => {
-        return item.document_name == this.hardCopyDetailObj.document_name;
+      let newArray = this.accountDetailObj.hardCopyDocArr.filter((item: any, i: any) => {
+        return item.document_name == this.hardCopyDetailObj.document_name && i != this.isEditingHardCopyName;
       });
 
       if (newArray.length > 0) {
         this.CommonService.message({ 'message': "Document name already exists !", color: 'warning' })
       }
       else {
-        this.accountDetailObj.hardCopyDocArr.push({
-          ...this.hardCopyDetailObj
-        });
-        this.saveDataOfAccount(this.accountDetailObj);
+        if (this.isEditingHardCopyName == -1) {
+          this.accountDetailObj.hardCopyDocArr.push({
+            ...this.hardCopyDetailObj
+          });
+
+        } else {
+          this.accountDetailObj.hardCopyDocArr[this.isEditingHardCopyName].document_name = this.hardCopyDetailObj.document_name;
+          this.isEditingHardCopyName = -1;
+        }    this.saveDataOfAccount(this.accountDetailObj);
 
         this.hardCopyDetailObj = { 'document_name': '', 'agent_id_int': '', 'task_id_int': "" };
         if (this.accountDetailObj.hardCopyDocArr.length == 0) {
@@ -401,7 +417,10 @@ export class AccountsDetailPage {
       }
     }
 
+
   }
+
+
   deleteHardCopiesDoc(index: number) {
     if (confirm('Are you sure you want to delete..iska puchna h k tsk k liiye jo diye hue h unka kya karna h ?')) {
       this.accountDetailObj.hardCopyDocArr.splice(this.accountDetailObj.hardCopyDocArr.length - 1 - index, 1);

@@ -3,24 +3,24 @@
     <ion-buttons slot="start" (click)="CommonService.showTabMenu =false">
 
       <span *ngIf="isOpenedAsModal">
-        <ion-buttons slot="start"   (click)="dismissComponentAsModal()">
+        <ion-buttons slot="start" (click)="dismissComponentAsModal()">
           <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
         </ion-buttons>
       </span>
       <span *ngIf="!isOpenedAsModal">
-      
-      <ion-buttons slot="start" *ngIf="!account_id_int"
-        routerLink="../../../../../accounts/{{account_or_policy}}/{{showingListFor}}/{{idOfthePersonForWhomListIs}}">
-        <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
-      </ion-buttons>
-      <ion-buttons slot="start" *ngIf="account_id_int && CommonService.accountLastPage == 'List'"
-        routerLink="../../../../../../accounts/{{account_or_policy}}/{{showingListFor}}/{{idOfthePersonForWhomListIs}}">
-        <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
-      </ion-buttons>
-      <ion-buttons slot="start" *ngIf="account_id_int && CommonService.accountLastPage == 'Detail'"
-        routerLink="../../../../../../accounts/accountsdetail/{{account_or_policy}}/{{showingListFor}}/{{idOfthePersonForWhomListIs}}/{{account_id_int}}">
-        <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
-      </ion-buttons> </span>
+
+        <ion-buttons slot="start" *ngIf="!account_id_int"
+          routerLink="../../../../../accounts/{{account_or_policy}}/{{showingListFor}}/{{idOfthePersonForWhomListIs}}">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons>
+        <ion-buttons slot="start" *ngIf="account_id_int && CommonService.accountLastPage == 'List'"
+          routerLink="../../../../../../accounts/{{account_or_policy}}/{{showingListFor}}/{{idOfthePersonForWhomListIs}}">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons>
+        <ion-buttons slot="start" *ngIf="account_id_int && CommonService.accountLastPage == 'Detail'"
+          routerLink="../../../../../../accounts/accountsdetail/{{account_or_policy}}/{{showingListFor}}/{{idOfthePersonForWhomListIs}}/{{account_id_int}}">
+          <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+        </ion-buttons> </span>
     </ion-buttons>
     <ion-title class="ion-text-center">
 
@@ -45,7 +45,7 @@
         </span> </ion-title>
     </ion-toolbar>
   </ion-header>
- 
+
 
   <div class="centerme margin-top-10">
     <ion-button shape="round" (click)="saveDataOfAccount()"> <span *ngIf="!account_id_int">
@@ -77,7 +77,7 @@
     <br />
 
 
-    <ion-label position="floating" style="margin-left: 13px">Account Opening in
+    <ion-label position="floating" style="margin-left: 13px">{{headingP}} Opening in
       <span class="required">*</span>
     </ion-label>
 
@@ -85,14 +85,16 @@
 
 
     <ion-chip class="form-chip" *ngFor="let perOrganisation_typeList of organisation_typeList; "
-      (click)="accountDetailObj.bank_or_post_office=perOrganisation_typeList.name; assignOrganisationWithCondition(perOrganisation_typeList.name)"
+      (click)="accountDetailObj.parent_account_id_int = '';accountDetailObj.bank_or_post_office=perOrganisation_typeList.name; assignOrganisationWithCondition(perOrganisation_typeList.name)"
       [color]="accountDetailObj.bank_or_post_office==perOrganisation_typeList.name ? 'secondary' :  'dark'">{{perOrganisation_typeList.name}}</ion-chip>
     <br />
     <br />
 
     <ion-item *ngIf="accountDetailObj.bank_or_post_office=='Bank'">
-      <ion-label position="floating">Select Bank <span class="required">*</span> </ion-label> <ion-select
-        placeholder="Select Bank" [(ngModel)]="accountDetailObj.organisation">
+      <ion-label position="floating">Select Bank <span class="required">*</span> </ion-label>
+
+      <ion-select placeholder="Select Bank" [(ngModel)]="accountDetailObj.organisation"
+        (ionChange)="accountDetailObj.parent_account_id_int = '';">
         <ion-select-option value="{{perBank.name}}" *ngFor="let perBank of bankList.banks; ">
 
           {{perBank.name}}
@@ -118,9 +120,9 @@
 
     <ion-item>
       <ion-label position="floating">{{headingP}} Holder <span class="required">*</span> </ion-label>
-      <ion-select placeholder="Select Account Holder " [selectedText]="accountDetailObj.account_holder_name"
+      <ion-select placeholder="Select {{headingP}} Holder " [selectedText]="accountDetailObj.account_holder_name"
         [(ngModel)]="accountDetailObj.user_id_int"
-        (ionChange)="updateSelectUserObjForExtraInfo();updateDropDownValuesForSelectAccountHolderAndAgent()">
+        (ionChange)="accountDetailObj.parent_account_id_int = '';updateSelectUserObjForExtraInfo();updateDropDownValuesForSelectAccountHolderAndAgent()">
         <span *ngFor="let perUser of CommonService.agentList; ">
 
           <ion-select-option *ngIf="perUser.working_for_user_or_agent=='User'" value="{{perUser.agent_id_int}}">
@@ -130,7 +132,7 @@
       </ion-select>
 
     </ion-item>
-    <ion-button fill="clear" style="font-size: small;"  (click)="adduser('User')">Add Account Holder</ion-button>
+    <ion-button fill="clear" style="font-size: small;" (click)="adduser('User')">Add {{headingP}} Holder</ion-button>
 
     <ion-item>
       <ion-label position="floating">Mobile No. Used <span class="required">*</span></ion-label>
@@ -148,11 +150,51 @@
         [(ngModel)]="accountDetailObj.address_given_for_account"></ion-textarea>
     </ion-item>
 
-    <span *ngIf="accountDetailObj.bank_or_post_office=='Bank'">
+    <span *ngIf="headingP=='Policy'">
+      <br />
+
+      <ion-label position="floating" style="margin-left: 13px">{{headingP}} attached with Account ?
+        <span class="required">*</span>
+      </ion-label>
+
+      <br />
+
+
+      <ion-chip class="form-chip" *ngFor="let prOption of yesnoList; "
+        (click)="accountDetailObj.is_dependent=prOption.option ;"
+        [color]="accountDetailObj.is_dependent==prOption.option ? 'secondary' :  'dark'">{{prOption.option}}</ion-chip>
+      <br />
+      <br />
+
+      <ion-item *ngIf="headingP=='Policy' &&  accountDetailObj.is_dependent=='Yes' ">
+        <ion-label position="floating">Select Parent Account <span class="required">*</span> </ion-label>
+
+        <ion-select placeholder="Select Parent Account" [selectedText]="accountDetailObj.parent_account_name"
+        
+        (ionChange)="updateDropDownValuesForSelectParentAccount()"
+        [(ngModel)]="accountDetailObj.parent_account_id_int">
+
+          <span *ngFor="let perAcc of CommonService.accountList ; ">
+            <ion-select-option value="{{perAcc.account_id_int}}"
+              *ngIf="perAcc.user_id_int==accountDetailObj.user_id_int && perAcc.account_or_policy=='Account' && perAcc.organisation == accountDetailObj.organisation">
+
+              {{perAcc.account_title}}
+            </ion-select-option>
+          </span>
+
+        </ion-select>
+      </ion-item>
+
+      <ion-button *ngIf="headingP=='Policy' &&  accountDetailObj.is_dependent=='Yes' " fill="clear" style="font-size: small;" (click)="addAccountPolicy('Account')">Add Parent
+        Account</ion-button>
+
+    </span>
+    <span *ngIf="headingP=='Account' && accountDetailObj.bank_or_post_office=='Bank'">
 
 
       <br /> <br />
-      <ion-label style="margin-left: 13px" position="floating">{{headingP}}  Type <span class="required">*</span></ion-label>
+      <ion-label style="margin-left: 13px" position="floating">{{headingP}} Type <span
+          class="required">*</span></ion-label>
 
       <br />
       <ion-chip class="form-chip" *ngFor="let prOption of account_typeList; "
@@ -160,7 +202,7 @@
         [color]="accountDetailObj.account_type==prOption.option ? 'secondary' :  'dark'">{{prOption.option}}</ion-chip>
     </span>
     <ion-item>
-      <ion-label position="floating">{{headingP}}  No. <span class="required">*</span></ion-label>
+      <ion-label position="floating">{{headingP}} No. <span class="required">*</span></ion-label>
       <ion-input type="text" placeholder="eg. 3229889222211" [(ngModel)]="accountDetailObj.account_number"></ion-input>
     </ion-item>
 
@@ -178,7 +220,7 @@
         </span>
       </ion-select>
     </ion-item>
-    <ion-button fill="clear" style="font-size: small;"  (click)="adduser('Agent')">Add Agent</ion-button>
+    <ion-button fill="clear" style="font-size: small;" (click)="adduser('Agent')">Add Agent</ion-button>
 
 
 
@@ -187,8 +229,6 @@
         Customer Id/CIF Id <span class="required">*</span>
       </ion-label>
       <ion-input placeholder="4321354211" type="text" [(ngModel)]="accountDetailObj.unique_id_for_account"></ion-input>
-
-
     </ion-item>
     <i style="margin-left: 13px"> <small *ngIf="accountDetailObj.bank_or_post_office" class="required">Any unique id
         provided by {{accountDetailObj.bank_or_post_office}}</small>
@@ -204,32 +244,44 @@
           class="required">*</span></ion-label>
       <ion-input type="date" [(ngModel)]="accountDetailObj.account_opening_date"></ion-input>
     </ion-item>
-    
-    <br /> <br />
-    <ion-label style="margin-left: 13px" position="floating">Is Netbanking enabled ?</ion-label>
+    <span *ngIf="headingP=='Policy'">
 
-    <br />
-    <ion-chip class="form-chip" *ngFor="let prOption of yesnoList; "
-      (click)="accountDetailObj.is_netbanking_enabled=prOption.option ;"
-      [color]="accountDetailObj.is_netbanking_enabled==prOption.option ? 'secondary' :  'dark'">{{prOption.option}}</ion-chip>
+      <ion-item>
+        <ion-label position="floating" class="margin-bottom-12">{{headingP}} maturity date <span
+            class="required">*</span></ion-label>
+        <ion-input type="date" [(ngModel)]="accountDetailObj.account_maturity_date"></ion-input>
+      </ion-item>
 
-    <br /> <br />
-    <ion-label style="margin-left: 13px" position="floating">Is Pan No. attached ?</ion-label>
+    </span>
 
-    <br />
-    <ion-chip class="form-chip" *ngFor="let prOption of yesnoList; "
-      (click)="accountDetailObj.is_pancard_attached=prOption.option ;"
-      [color]="accountDetailObj.is_pancard_attached==prOption.option ? 'secondary' :  'dark'">{{prOption.option}}</ion-chip>
-    <br /> <br />
-    <ion-label style="margin-left: 13px" position="floating">Is Adhaar No. attached ?</ion-label>
 
-    <br />
-    <ion-chip class="form-chip" *ngFor="let prOption of yesnoList; "
-      (click)="accountDetailObj.is_adhaar_attached=prOption.option ;"
-      [color]="accountDetailObj.is_adhaar_attached==prOption.option ? 'secondary' :  'dark'">{{prOption.option}}</ion-chip>
-    <br /> <br />
+    <span *ngIf="headingP=='Account' || (headingP=='Policy' && accountDetailObj.is_dependent=='Yes')">
+      <br /> <br />
+      <ion-label style="margin-left: 13px" position="floating">Is Netbanking enabled ?</ion-label>
+
+      <br />
+      <ion-chip class="form-chip" *ngFor="let prOption of yesnoList; "
+        (click)="accountDetailObj.is_netbanking_enabled=prOption.option ;"
+        [color]="accountDetailObj.is_netbanking_enabled==prOption.option ? 'secondary' :  'dark'">{{prOption.option}}</ion-chip>
+
+      <br /> <br />
+      <ion-label style="margin-left: 13px" position="floating">Is Pan No. attached ?</ion-label>
+
+      <br />
+      <ion-chip class="form-chip" *ngFor="let prOption of yesnoList; "
+        (click)="accountDetailObj.is_pancard_attached=prOption.option ;"
+        [color]="accountDetailObj.is_pancard_attached==prOption.option ? 'secondary' :  'dark'">{{prOption.option}}</ion-chip>
+      <br /> <br />
+      <ion-label style="margin-left: 13px" position="floating">Is Adhaar No. attached ?</ion-label>
+
+      <br />
+      <ion-chip class="form-chip" *ngFor="let prOption of yesnoList; "
+        (click)="accountDetailObj.is_adhaar_attached=prOption.option ;"
+        [color]="accountDetailObj.is_adhaar_attached==prOption.option ? 'secondary' :  'dark'">{{prOption.option}}</ion-chip>
+      <br /> <br />
+    </span>
     <ion-item>
-      <ion-label position="floating">Extra Information </ion-label>
+      <ion-label position="floating">Extra information about {{headingP}}</ion-label>
       <ion-textarea [autoGrow]="true" placeholder="Anything more you want to mention about this {{headingP}}"
         [(ngModel)]="accountDetailObj.otherdetails"></ion-textarea>
     </ion-item>
@@ -237,7 +289,7 @@
   </ion-list>
 
   <ion-list *ngIf="currentSegment=='nomination'">
- 
+
     <span *ngIf='showNomineeform'> <br /> <br />
       <b class="centerme">Add Nominees of {{headingP}}</b><br /> <br />
       <ion-label position="floating" style="margin-left: 13px">Select User <span class="required">*</span>
@@ -248,8 +300,7 @@
 
 
       <span *ngFor="let perUser of availableNomineesList ">
-        <ion-chip class="form-chip"
-          *ngIf=" perUser.agent_id_int!= accountDetailObj.user_id_int"
+        <ion-chip class="form-chip" style="min-width: 160px;" *ngIf=" perUser.agent_id_int!= accountDetailObj.user_id_int"
           (click)="nDetailObj.nominee_id=perUser.agent_id_int ;nDetailObj.nominee_name=perUser.name ;"
           [color]="nDetailObj.nominee_id==perUser.agent_id_int ? 'secondary' :  'dark'">
           {{perUser.name}}
@@ -329,15 +380,15 @@
 
   </ion-list>
   <ion-list *ngIf="currentSegment=='docs'">
-    <br /> 
+    <br />
     <span class="centerme">
       <ion-chip class="form-chip-reactangle" (click)="whattypeofdocadding='hard';  "
-      [color]="whattypeofdocadding =='hard' ? 'secondary' :  'dark'">Physical Docs</ion-chip>
-    <ion-chip class="form-chip-reactangle" (click)="whattypeofdocadding='soft';  "
-      [color]="whattypeofdocadding =='soft' ? 'secondary' :  'dark'">Digital Docs</ion-chip><br /> <br />
-   
-  </span>  <br /><span *ngIf="whattypeofdocadding=='hard'">
-      
+        [color]="whattypeofdocadding =='hard' ? 'secondary' :  'dark'">Physical Docs</ion-chip>
+      <ion-chip class="form-chip-reactangle" (click)="whattypeofdocadding='soft';  "
+        [color]="whattypeofdocadding =='soft' ? 'secondary' :  'dark'">Digital Docs</ion-chip><br /> <br />
+
+    </span> <br /><span *ngIf="whattypeofdocadding=='hard'">
+
       <span *ngIf='showHardDocsform'>
         <b class="centerme">Physical Documents </b>
         <small style="padding:10px" class="centerme">Add related Physical Documents !</small>
@@ -345,7 +396,8 @@
           <ion-label position="floating">Document Name<span class="required">*</span></ion-label>
           <ion-input type="text" placeholder="Passbook" [(ngModel)]="hardCopyDetailObj.document_name"></ion-input>
         </ion-item>
-        <ion-button fill="outline" color="primary" class="rightme" (click)="addHardCopiesDoc()">Add </ion-button>
+        <ion-button fill="outline" color="primary" class="rightme" (click)="addHardCopiesDoc()">
+          {{isEditingHardCopyName==-1 ? 'Add':'Update'}} </ion-button>
 
         <br /> <br /> <br /> <br />
       </span>
@@ -368,16 +420,17 @@
           <ion-card-header>
             <ion-card-subtitle>
 
-              {{perhardFile.document_name}}    <span *ngIf="perhardFile.task_name">
+              {{perhardFile.document_name}} <span *ngIf="perhardFile.task_name">
                 <br />Currently this document is with Agent
-                <b>{{perhardFile.agent_name}}</b>  for task 
-                  
-                 <b>{{perhardFile.task_name}}</b> 
+                <b>{{perhardFile.agent_name}}</b> for task
+
+                <b>{{perhardFile.task_name}}</b>
               </span>
               <ion-icon name="trash-outline" item-right color="danger" style="float:right"
                 (click)="deleteHardCopiesDoc(i)" class="per-ion-icon">
 
-              </ion-icon>
+              </ion-icon> <ion-icon name="create-outline" class="per-ion-icon" style="float:right"
+                (click)="editHardCopiesDoc(i)" item-right></ion-icon>
             </ion-card-subtitle>
 
           </ion-card-header>

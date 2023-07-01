@@ -33,7 +33,7 @@
       {{working_for_user_or_agent}}</ion-button>
   
     </ion-fab>
-  <ion-card *ngIf="CommonService.filteredListUserAgent && CommonService.filteredListUserAgent.length==0" style="padding:10px">
+  <div *ngIf="CommonService.filteredListUserAgent && CommonService.filteredListUserAgent.length==0" style="padding:10px">
     <img *ngIf="working_for_user_or_agent=='Agent'" src="assets/bank-agent-icon.jpg" style="height: 50%;
     width: 50%;" />
     <img *ngIf="working_for_user_or_agent=='User'" src="assets/bank-users-icon.jpg" style="height: 50%;
@@ -55,18 +55,22 @@
     </span>
     <ion-button   item-start  color="primary" routerLink="../../agents/agentadd/{{working_for_user_or_agent}}">+ Add
       {{working_for_user_or_agent}}</ion-button>
-  </ion-card>
+  </div>
 
   <ion-list *ngIf="CommonService.filteredListUserAgent && CommonService.filteredListUserAgent.length>0">
      
 
     
     <ion-item detail="true" class="itemborder" *ngFor="let perAgent of CommonService.filteredListUserAgent; ">
-      <ion-thumbnail slot="start" (click)="viewAgent(perAgent.agent_id_int)">
+      <ion-avatar style="--border-radius: 100px !important;
+      height: 66px;
+      width: 55px
+  
+  ;" slot="start" (click)="viewAgent(perAgent.agent_id_int)">
         <img alt="  Img" *ngIf="!perAgent.image_path || perAgent.image_path==''" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
 
         <img alt="  Img" *ngIf="perAgent.image_path && perAgent.image_path!=''" src="{{perAgent.serverpath}}/{{perAgent.image_path}}" />
-      </ion-thumbnail>
+      </ion-avatar>
       <ion-label>
         <p (click)="viewAgent(perAgent.agent_id_int)"> <ion-icon name="person-outline"></ion-icon> {{perAgent. name}} <br />
           <ion-icon name="phone-portrait-outline"></ion-icon> {{perAgent.mobile}}

@@ -1,0 +1,221 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start" (click)="CommonService.showTabMenu =false">
+      <ion-buttons slot="start" (click)="dismissComponentAsModal()">
+        <ion-icon name="chevron-back-outline" class="xdsffdd"></ion-icon>
+      </ion-buttons>
+
+    </ion-buttons>
+    <ion-title class="ion-text-center">
+
+      <span *ngIf="!credit_debit_id_int">
+        Add Record
+      </span> <span *ngIf="credit_debit_id_int">
+        Update Record
+      </span>
+    </ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" #content>
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">
+        <span *ngIf="!credit_debit_id_int">
+          Add Record
+        </span> <span *ngIf="credit_debit_id_int">
+          Update Record
+        </span>
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+
+  <div class="centerme margin-top-10">
+    <ion-button shape="round" (click)="saveDataOfRecord()"> <span *ngIf="!credit_debit_id_int">
+        Save Details
+      </span> <span *ngIf="credit_debit_id_int">
+        Update Details
+      </span> </ion-button>
+  </div>
+
+  <small class="centerme" style="margin-top: 10px;">Fields with asterik (<span class="required">*</span>) are required
+  </small>
+
+  <ion-segment color="primary" value="detail" (ionChange)="segmentChange($event)">
+    <ion-segment-button value="detail">
+      <ion-label> Details </ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="Softfile">
+      <ion-label>Document </ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-list *ngIf="currentSegment=='detail'">
+
+
+    <br />
+
+    <ion-label position="floating" style="margin-left: 13px">Record Type <span class="required">*</span>
+    </ion-label>
+
+
+    <br />
+    <ion-chip class="form-chip" (click)="recordDetailObj.paid_or_received='Paid';  "
+      [color]="recordDetailObj.paid_or_received=='Paid'  ? 'secondary' :  'dark'">Paid</ion-chip>
+    <ion-chip class="form-chip" (click)="recordDetailObj.paid_or_received='Received';   "
+      [color]="recordDetailObj.paid_or_received=='Received' ? 'secondary' :  'dark'">Received</ion-chip>
+    <br />
+
+    <ion-item>
+      <ion-label position="floating">Payment Title <span class="required">*</span></ion-label>
+      <ion-input placeholder="" [(ngModel)]="recordDetailObj.payment_title" maxlength="36"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">
+        {{recordDetailObj.paid_or_received=='Paid' ? 'Paid To' : 'Received From'}} <span
+          class="required">*</span></ion-label>
+      <ion-input placeholder="Second party name" [(ngModel)]="recordDetailObj.paid_to_or_received_from"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">
+
+        {{recordDetailObj.paid_or_received=='Paid' ? 'Paid Amount' : 'Received Amount'}} <span
+          class="required">*</span></ion-label>
+      <ion-input placeholder="" [(ngModel)]="recordDetailObj.amount"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating" class="margin-bottom-12">Payment Date <span class="required">*</span></ion-label>
+      <ion-input type="date" [(ngModel)]="recordDetailObj.payment_date"></ion-input>
+
+    </ion-item>
+    <span *ngIf="CommonService.accountList   ">
+
+      <ion-item>
+        <ion-label position="floating">Attach Account (Optional)</ion-label>
+
+        <ion-select placeholder="Select Account" (ionChange)="updateDropDownValuesForSelectAccount()"
+          [(ngModel)]="recordDetailObj.account_id_int" [selectedText]="recordDetailObj.account_title">
+
+
+          <span *ngFor="let perAccount of   CommonService.accountList   ; ">
+            <ion-select-option value="{{perAccount.account_id_int}}" *ngIf="perAccount.account_or_policy=='Account' ">
+              {{perAccount.account_title}}
+            </ion-select-option>
+          </span>
+
+        </ion-select>
+      </ion-item>
+
+
+      <i style="margin-left: 13px"> <small class="required">{{recordDetailObj.paid_or_received=='Paid' ? 'Amount will be
+          deducted from selected
+          Account' : 'Amount
+          will be added to selected Account'}}</small>
+      </i>
+      <ion-button fill="clear" style="font-size: small;" (click)="addAccountPolicy('Account')">Add Account</ion-button>
+
+    </span>
+    <br />
+
+    <br />
+
+    <ion-label position="floating" style="margin-left: 13px"> {{recordDetailObj.paid_or_received=='Paid' ? 'Paid Using'
+      : 'Received Through'}}
+      <span class="required">*</span>
+    </ion-label>
+
+
+    <br />
+    <span *ngFor="let perMode of payModeList;">
+      <ion-chip class="form-chip " style="width: 45%; border:1px solid #3dc2ff"  (click)="recordDetailObj.payment_mode=perMode.value;  "
+        [color]="recordDetailObj.payment_mode==perMode.value  ? 'secondary' :  'white'">
+
+        <img *ngIf="perMode.img!=''" src="assets/{{perMode.img}}.png" style="{{perMode.style}}" /> 
+        &nbsp;{{perMode.name}}
+
+      </ion-chip>
+    </span>
+
+
+    <br />
+    <br />
+    <ion-item *ngIf="recordDetailObj.payment_mode && recordDetailObj.payment_mode=='Other'  ">
+      <ion-label position="floating" class="margin-bottom-12">Other paid mode name       <span class="required">*</span>
+      </ion-label>
+      <ion-input type="text" [(ngModel)]="recordDetailObj.payment_mode_name_if_other_selected"></ion-input>
+
+    </ion-item>
+    <span  
+      *ngIf="recordDetailObj.payment_mode && recordDetailObj.payment_mode!='Cash' && recordDetailObj.payment_mode!='Cheque'">
+      <h5  >Transaction Details (Optional)</h5>
+      <ion-item>
+        <ion-label position="floating" class="margin-bottom-12">Transaction Id</ion-label>
+        <ion-input type="text" [(ngModel)]="recordDetailObj.transaction_id"></ion-input>
+
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating" class="margin-bottom-12">Transaction Ref. No.</ion-label>
+        <ion-input type="text" [(ngModel)]="recordDetailObj.transaction_ref"></ion-input>
+
+      </ion-item>
+    </span>
+
+    <span *ngIf="recordDetailObj.payment_mode=='Cheque'"  >
+      <h5  >Cheque Details (Optional)</h5>
+      <ion-item>
+        <ion-label position="floating" class="margin-bottom-12">Cheque Issued To</ion-label>
+        <ion-input type="text" [(ngModel)]="recordDetailObj.cheque_issued_to"></ion-input>
+
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating" class="margin-bottom-12">Cheque Issued Date</ion-label>
+        <ion-input type="date" [(ngModel)]="recordDetailObj.cheque_date"></ion-input>
+
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating" class="margin-bottom-12">Cheque Number</ion-label>
+        <ion-input type="text" [(ngModel)]="recordDetailObj.cheque_no"></ion-input>
+
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating" class="margin-bottom-12">Cheque Bank</ion-label>
+        <ion-input type="text" [(ngModel)]="recordDetailObj.cheque_bank"></ion-input>
+
+      </ion-item>
+    </span>
+
+    <ion-item>
+      <ion-label position="floating">Other Detail </ion-label>
+      <ion-textarea [autoGrow]="true" placeholder="Something extra you want to mention..."
+        [(ngModel)]="recordDetailObj.otherdetails"></ion-textarea>
+    </ion-item>
+
+
+
+
+  </ion-list>
+  <ion-list *ngIf="currentSegment=='Softfile'">
+    <app-fileupload [moduleInfo]="moduleInfo" (newmoduleInfo)="updateImageInfoFun($event)"></app-fileupload>
+
+    <ion-card *ngFor="let perFile of recordDetailObj.imageArr.slice().reverse(); let i = index ">
+      <ion-item>
+        <ion-thumbnail slot="start" (click)="viewDoc(perFile)">
+          <img *ngIf="perFile.filetype=='Image'" [src]="perFile.serverpath+perFile.filepath" />
+          <ion-icon style="font-size: xxx-large;" name="document-outline" *ngIf="perFile.filetype!='Image'"></ion-icon>
+        </ion-thumbnail>
+        <ion-label>
+          {{perFile.originalname}}
+          <br />
+          <ion-icon name="download-outline" class="per-ion-icon margin-top-10" (click)="viewDoc(perFile)"
+            item-right></ion-icon>
+          <ion-icon name="trash-outline" color="danger" style="margin-left: 10px;" class="per-ion-icon margin-top-10"
+            (click)="deleteFile(perFile,i)"></ion-icon>
+        </ion-label>
+      </ion-item>
+    </ion-card>
+  </ion-list>
+
+</ion-content>
