@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { CommonService } from '../../common.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ActionSheetController, ModalController } from '@ionic/angular';
 import { AccountingAddComponent } from '../accounting-add.component';
+import { InfiniteScrollCustomEvent } from '@ionic/angular';
 
 @Component({
   selector: 'app-accounting',
@@ -14,19 +15,21 @@ export class AccountingComponent {
   creditDebitListTotalRecord = 0;
   moduleInfoList: any = { "apipath": "apipolicy/uploadfileofcredit_debit", 'linebelowBrowsefile': 'Upload record related documents !', 'module': 'Credit Debit', "showPreview": false, "browseimagepath": 'assets/browsefile.png', 'multipleAllowed': true, "filetype": 'Any' };
   saveDataSub: any;
-  public actionSheetButtons: any;
+  public actionSheetButtons: any; loadingMoreData: boolean = false;
   getSub: any;
   deleteSub: any; getSubA: any;
   filterPaidrecieved: any = [{ name: 'Paid', value: 'Paid', "selected": false }, { name: 'Received', value: 'Received', "selected": false }];
   filterPayment_mode: any = [{ name: 'UPI', value: 'UPI', "selected": false }, { name: 'Cash', value: 'Cash', "selected": false },
   { name: 'Cheque', value: 'Cheque', "selected": false }, { name: 'Netbanking', value: 'Netbanking', "selected": false },
   { name: 'Other', value: 'Other', "selected": false }];
-  limit: number = 0; skip: number = 0;
+  limit: number = 50; skip: number = 0;
   searchTerm: any = ''; filterPayment_date1 = '';
   filterPayment_date2 = '';
   constructor(private modalCtrl: ModalController, private actionSheetCtrl: ActionSheetController, public CommonService: CommonService, private router: Router, private route: ActivatedRoute) {
     this.CommonService.showTabMenu = false; this.CommonService.loading = false;
   }
+
+
   ngOnInit() {
     this.initialLoad();
   }
@@ -40,9 +43,9 @@ export class AccountingComponent {
       if (!this.CommonService.categoryList || this.CommonService.categoryList.length == 0) {
         this.getCategoryList();
       } else {
-        if (!this.CommonService.creditDebitList || this.CommonService.creditDebitList.length == 0) {
-          this.getCreditDebitList();
-        }
+
+        this.getCreditDebitList();
+
       }
     }
   }
@@ -67,12 +70,9 @@ export class AccountingComponent {
     this.CommonService.loading = true;
     this.getSub = this.CommonService.getCategoryList().subscribe((data: any) => {
       this.CommonService.categoryList = data;
-      if (!this.CommonService.creditDebitList || this.CommonService.creditDebitList.length == 0) {
-        this.getCreditDebitList();
-      } else {
 
-        this.CommonService.loading = false;
-      }
+      this.getCreditDebitList();
+
     }, (err: any) => {
       this.CommonService.loading = false;
       this.CommonService.message({ 'message': "Something is wrong.." })
@@ -80,8 +80,12 @@ export class AccountingComponent {
   }
   addCount: number = 0;
   getCreditDebitList() {
+    if (this.skip == 0) {
+      this.CommonService.loading = true;
+    }else{
+      this.loadingMoreData = true;
+    }
 
-    this.CommonService.loading = true;
     this.getSub = this.CommonService.getCreditDebitList({
       'filterAccountIdAccounting': this.CommonService.filterAccountIdAccounting,
       'filterPaidrecieved': this.filterPaidrecieved,
@@ -94,36 +98,57 @@ export class AccountingComponent {
     }
 
     ).subscribe((data: any) => {
-      this.CommonService.loading = false;
+
       if (this.skip == 0) {
-        this.CommonService.creditDebitList = [];
-      }
+        this.CommonService.loading = false; this.CommonService.creditDebitList = [];
+      } 
+let c=0;
       data.list.forEach((item: any) => {
-        item.account_title= '';
-        console.log(this.CommonService.accountListArrByIdAsKey[  item.account_id_int]);
-        if(item.account_id_int && this.CommonService.accountListArrByIdAsKey[  item.account_id_int]){
-          item.account_title= this.CommonService.accountListArrByIdAsKey[  item.account_id_int]['account_title']
+        item.account_title = '';
+        console.log(this.CommonService.accountListArrByIdAsKey[item.account_id_int]);
+        if (item.account_id_int && this.CommonService.accountListArrByIdAsKey[item.account_id_int]) {
+          item.account_title = this.CommonService.accountListArrByIdAsKey[item.account_id_int]['account_title']
         }
-       
+
         this.CommonService.creditDebitList.push({ ...item });
+        c++;
       });
       if (this.skip == 0) {
-        this.creditDebitListTotalRecord = data.creditDebitListTotalRecord;
+       this.creditDebitListTotalRecord = data.creditDebitListTotalRecord;
       }
-
+      
       this.deleteCount = 0; this.addCount = 0;
-      this.skip = this.limit;
+      this.skip = this.skip + this.limit;
+      
+      this.loadingMoreData = false;
+
     }, (err: any) => {
       this.CommonService.loading = false;
       this.CommonService.message({ 'message': "Something is wrong !" })
     });
   }
+
+
+  onScroll(event:any) {
+    // used a couple of "guards" to prevent unnecessary assignments if scrolling in a direction and the var is set already:
+     if(this.loadingMoreData == false && this.CommonService.loading == false){
+
+     
+    if (event.detail.deltaY > 0) {
+      console.log("scrolling down,  .");
+      if( this.creditDebitListTotalRecord  >  this.CommonService.creditDebitList.length){
+           this.getCreditDebitList();
+      }
+    }  }
+  };
   openAddRecordModal() {
-    this.CommonService.addingOrEditingAccountinecod = undefined;
+    this.CommonService.addingOrEditingAccountinecod.id = undefined;
+    this.CommonService.addingOrEditingAccountinecod.show_or_addedit = 'addedit';
+    this.CommonService.addingOrEditingAccountinecod.index = undefined;
+
     this.openAddRecordModalWork();
-
-
   }
+
   async openAddRecordModalWork() {
 
     const modal = await this.modalCtrl.create({
@@ -133,13 +158,13 @@ export class AccountingComponent {
 
     const { data, role } = await modal.onWillDismiss();
 
-    if (role == 'confirm') {
-      if (this.CommonService.addingOrEditingAccountinecod) {
+    if (role == 'save') {
+      if (this.CommonService.addingOrEditingAccountinecod.id) {
 
 
         this.CommonService.creditDebitList.every((item: any, index: any) => {
 
-          if (item.credit_debit_id_int == this.CommonService.addingOrEditingAccountinecod) {
+          if (item.credit_debit_id_int == this.CommonService.addingOrEditingAccountinecod.id) {
 
             this.CommonService.creditDebitList[index] = data;
             return false;
@@ -147,7 +172,10 @@ export class AccountingComponent {
           }
           return true;
         });
-        this.CommonService.addingOrEditingAccountinecod = undefined;
+        this.CommonService.addingOrEditingAccountinecod.index = undefined;
+
+        this.CommonService.addingOrEditingAccountinecod.id = undefined;
+        this.CommonService.addingOrEditingAccountinecod.show_or_addedit = undefined;
       } else {
         this.addCount = 1;
 
@@ -155,14 +183,22 @@ export class AccountingComponent {
       }
 
     }
+    if (role == 'delete') {
 
+      this.deleteCreditDebit(this.CommonService.addingOrEditingAccountinecod.index, this.CommonService.addingOrEditingAccountinecod.id, '')
+      this.CommonService.addingOrEditingAccountinecod.id = undefined;
+      this.CommonService.addingOrEditingAccountinecod.show_or_addedit = undefined;
+      this.CommonService.addingOrEditingAccountinecod.index = undefined;
+
+    }
 
 
 
   }
+
   handleRefresh(event: any) {
     setTimeout(() => {
-      this.initialLoad();
+      this.skip = 0; this.initialLoad();
       event.target.complete();
     }, 2000);
   };
@@ -211,8 +247,18 @@ export class AccountingComponent {
 
     this.saveDataOfRecord(recordDetailObj, index);
   }
-  editCreditDebit(credit_debit_id_int: Number) {
-    this.CommonService.addingOrEditingAccountinecod = credit_debit_id_int;
+  editCreditDebit(index: Number, credit_debit_id_int: Number) {
+    this.CommonService.addingOrEditingAccountinecod.id = credit_debit_id_int;
+    this.CommonService.addingOrEditingAccountinecod.show_or_addedit = 'addedit';
+    this.CommonService.addingOrEditingAccountinecod.index = index;
+
+    this.openAddRecordModalWork();
+  }
+  viewCreditDebit(index: Number, credit_debit_id_int: Number) {
+    this.CommonService.addingOrEditingAccountinecod.id = credit_debit_id_int;
+    this.CommonService.addingOrEditingAccountinecod.show_or_addedit = 'show';
+    this.CommonService.addingOrEditingAccountinecod.index = index;
+
     this.openAddRecordModalWork();
   }
   saveDataOfRecord(recordDetailObj: any, index: any) {

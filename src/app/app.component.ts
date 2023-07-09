@@ -31,6 +31,7 @@ export class AppComponent {
         this.CommonService.userTileList = data.initialData.userTileList;
         this.CommonService.accountTileList = data.initialData.accountTileList;
         this.CommonService.polcyTileList = data.initialData.polcyTileList;
+        this.CommonService.balanceRecordTileList = data.initialData.balanceRecordTileList;
         
         this.CommonService.hometilesListBelowcard = data.initialData.hometilesListBelowcard;
 

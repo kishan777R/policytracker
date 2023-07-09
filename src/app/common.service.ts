@@ -16,7 +16,7 @@ export class CommonService {
   bankList: any;
   creditDebitList: any = undefined;
   categoryList: any = undefined;
-  addingOrEditingAccountinecod: any = undefined;
+  addingOrEditingAccountinecod: any = {index:undefined,id:undefined,show_or_addedit:undefined};
   stateList: any;
   agentList: any = undefined;
   agentListArrByIdAsKey: any = []; accountListArrByIdAsKey: any = [];
@@ -24,7 +24,7 @@ export class CommonService {
   taskList: any = undefined;
   organisation_typeList: any;
   dashboardHeader: any; loading: boolean = false;
-  agentTileList: any;
+  agentTileList: any; balanceRecordTileList: any;
   userTileList: any;
   whencomebacktoAccountListAfterSaveDoNeedToSendToDetails_variable_is_with_account_id: number = -1;
   tilesList: any; uri: string = environment.commonURL;
@@ -118,7 +118,7 @@ export class CommonService {
   }
 
   deleteCreditDebit(credit_debit_id_int: Number, extraaction: string = '') {
-    return this.http.delete<any>(this.uri + 'apipolicy/credit_debit/' + credit_debit_id_int + '/' + extraaction + '/' + this.customerinfo.logged_in_user_id_int + '/' + this.customerinfo.customer_id_int, httpOptions).pipe(
+    return this.http.delete<any>(this.uri + 'apipolicy/credit_debit/' + credit_debit_id_int + '/' +     this.customerinfo.logged_in_user_id_int + '/' + this.customerinfo.customer_id_int, httpOptions).pipe(
       retry(1),
       catchError(this.handleError)
     );

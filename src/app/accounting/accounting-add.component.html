@@ -7,18 +7,162 @@
 
     </ion-buttons>
     <ion-title class="ion-text-center">
+      <span *ngIf="CommonService.addingOrEditingAccountinecod.show_or_addedit=='addedit'">
+        <span *ngIf="!credit_debit_id_int ">
+          Add Record
+        </span> <span *ngIf="credit_debit_id_int">
+          Update Record
+        </span>
+      </span>
+      <span *ngIf="CommonService.addingOrEditingAccountinecod.show_or_addedit=='show'">
 
-      <span *ngIf="!credit_debit_id_int">
-        Add Record
-      </span> <span *ngIf="credit_debit_id_int">
-        Update Record
+        Record Details
+        <ion-icon name="trash-outline" item-right color="danger"
+        
+        class="per-ion-icon float-right " (click)="deleteRecord()"></ion-icon>
+    <ion-icon name="create-outline" (click)="editRecord()" class="per-ion-icon float-right padding-right-10"
+         item-right></ion-icon>
       </span>
     </ion-title>
 
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" #content>
+<ion-content [fullscreen]="true"  *ngIf="recordDetailObj && CommonService.addingOrEditingAccountinecod.show_or_addedit=='show'">
+  <ion-header collapse="condense">
+      <ion-toolbar>
+          <ion-title size="large">  Record Details</ion-title>
+      </ion-toolbar>
+  </ion-header>
+
+
+  <ion-card-header>
+      <ion-card-title>  
+        <ion-chip style="   width: 100px;margin-left: -2px;margin-bottom: 13px; "
+        [color]="recordDetailObj.paid_or_received=='Paid' ? 'danger' :  'success'">
+        <ion-icon name="arrow-up-outline" *ngIf="recordDetailObj.paid_or_received=='Received'"></ion-icon>
+
+        <ion-icon name="arrow-down-outline" *ngIf="recordDetailObj.paid_or_received=='Paid'"></ion-icon>
+        &nbsp; {{recordDetailObj.paid_or_received=='Paid' ? 'Debit'
+        : 'Credit'}}
+      </ion-chip> <br/>  {{recordDetailObj. payment_title}}</ion-card-title>
+      
+  </ion-card-header>
+
+  <ion-card-content>
+
+
+    <div class="borderme">
+
+      {{recordDetailObj.paid_or_received=='Paid' ? 'Paid To' : 'Received From'}} :
+      {{recordDetailObj.paid_to_or_received_from}}
+      <br />
+      {{recordDetailObj.paid_or_received=='Paid' ? 'Paid Amount' : 'Received Amount'}} : INR {{recordDetailObj.amount}}
+      <br />
+
+
+      Payment Date : {{recordDetailObj.payment_date | date: 'longDate'}}
+
+
+      <br />
+      {{recordDetailObj.paid_or_received=='Paid' ? 'Paid Using'
+      : 'Received Through'}} : <span *ngIf="recordDetailObj.payment_mode!='Other'">{{recordDetailObj.payment_mode }}</span>
+      <span *ngIf="recordDetailObj.payment_mode=='Other'">{{recordDetailObj.payment_mode_name_if_other_selected }}</span>
+    </div>
+    <div class="borderme" *ngIf="recordDetailObj.account_title!=''"> Attached Account : {{recordDetailObj.account_title }}
+    </div>
+
+
+
+    <div class="borderme"
+      *ngIf="recordDetailObj.payment_mode && recordDetailObj.payment_mode!='Cash' && recordDetailObj.payment_mode!='Cheque'">
+      Transaction Id : {{recordDetailObj.transaction_id}} <br /> Transaction Ref. No. :
+      {{recordDetailObj.transaction_ref}}
+
+    </div>
+
+    <div class="borderme" *ngIf="recordDetailObj.payment_mode=='Cheque'">
+
+      Cheque Issued To : {{recordDetailObj.cheque_issued_to}}
+      <br /> Cheque Issued Date : {{recordDetailObj.cheque_date | date: 'longDate'}}
+      <br /> Cheque Number : {{recordDetailObj.cheque_no}}
+      <br /> Cheque Bank : {{recordDetailObj.cheque_bank}}
+    </div>
+    <div class="borderme" *ngIf="recordDetailObj.otherdetails">{{recordDetailObj.otherdetails}}</div>
+
+
+  </ion-card-content>
+
+
+
+  <ion-grid [fixed]="true" *ngFor="let perRow of tileList ">
+      <ion-row>
+          <ion-col *ngFor="let perCol of perRow.rowKey" (click)="performAtion(perCol)" id="{{perCol.id}}">
+              <span *ngIf="perCol.id">
+
+
+
+
+                  <img src=" {{perCol.img}}" style=" {{perCol.imgstyle}}" />
+                  <br />
+
+                  <span style=" color:  {{perCol.titleColor}}">
+                  <span style="{{perCol.titlestyle}}">{{perCol.title}} </span>  
+                    <br />
+                      <small style=" color:  {{perCol.subtitleColor}}">
+                          {{perCol.subtitle}}
+                      </small>
+
+                  </span>
+              </span>
+          </ion-col>
+
+
+      </ion-row>
+  </ion-grid>
+
+ 
+
+  <ion-modal   #modal trigger="open-modalDocs" 
+  [initialBreakpoint]="0.90" [breakpoints]="[0, 0.25, 0.5, 0.75,0.85,0.90,1]">
+    <ng-template>
+      <ion-content>
+        
+        <h2 style="text-align:center;"  *ngIf="recordDetailObj.imageArr && recordDetailObj.imageArr.length >0;">
+           Documents Uploaded
+        </h2>
+
+        <app-fileupload [moduleInfo]="moduleInfo" (newmoduleInfo)="updateImageInfoFunList($event,recordDetailObj)"></app-fileupload>
+          <br /> 
+        <div style="max-height:90%;overflow-y: scroll;">
+
+          <ion-card *ngFor="let perFile of recordDetailObj.imageArr.slice().reverse(); let i = index ">
+            <ion-item >
+              <ion-thumbnail slot="start" (click)="viewDoc(perFile)">
+                <img *ngIf="perFile.filetype=='Image'" [src]="perFile.serverpath+perFile.filepath" />
+                <ion-icon style="font-size: xxx-large;" name="document-outline"
+                  *ngIf="perFile.filetype!='Image'"></ion-icon>
+              </ion-thumbnail>
+              <ion-label>
+                <span (click)="viewDoc(perFile)">  {{perFile.originalname}}</span>
+              
+                <br />
+                <ion-icon name="download-outline" (click)="viewDoc(perFile)" class="per-ion-icon margin-top-10" 
+                  item-right></ion-icon>
+                  <ion-icon name="trash-outline" color="danger" style="margin-left: 10px;" class="per-ion-icon margin-top-10"
+                  (click)="deleteFile(perFile,i,'Yes')"></ion-icon>
+              </ion-label>
+            </ion-item>
+          </ion-card> <br /> <br />
+        </div>
+       
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+
+</ion-content>
+<ion-content [fullscreen]="true" #content *ngIf="CommonService.addingOrEditingAccountinecod.show_or_addedit=='addedit'">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">
@@ -33,7 +177,7 @@
 
 
   <div class="centerme margin-top-10">
-    <ion-button shape="round" (click)="saveDataOfRecord()"> <span *ngIf="!credit_debit_id_int">
+    <ion-button shape="round" (click)="saveDataOfRecord('YES')"> <span *ngIf="!credit_debit_id_int">
         Save Details
       </span> <span *ngIf="credit_debit_id_int">
         Update Details
@@ -110,19 +254,22 @@
       </ion-item>
 
 
-      <i style="margin-left: 13px"> <small class="required">{{recordDetailObj.paid_or_received=='Paid' ? 'Amount will be
+      <i style="margin-left: 13px"> <small class="required">{{recordDetailObj.paid_or_received=='Paid' ? 'Amount will
+          be
           deducted from selected
           Account' : 'Amount
           will be added to selected Account'}}</small>
       </i>
-      <ion-button fill="clear" style="font-size: small;" (click)="addAccountPolicy('Account')">Add Account</ion-button>
+      <ion-button fill="clear" style="font-size: small;" (click)="addAccountPolicy('Account')">Add
+        Account</ion-button>
 
     </span>
     <br />
 
     <br />
 
-    <ion-label position="floating" style="margin-left: 13px"> {{recordDetailObj.paid_or_received=='Paid' ? 'Paid Using'
+    <ion-label position="floating" style="margin-left: 13px"> {{recordDetailObj.paid_or_received=='Paid' ? 'Paid
+      Using'
       : 'Received Through'}}
       <span class="required">*</span>
     </ion-label>
@@ -130,10 +277,11 @@
 
     <br />
     <span *ngFor="let perMode of payModeList;">
-      <ion-chip class="form-chip " style="width: 45%; border:1px solid #3dc2ff"  (click)="recordDetailObj.payment_mode=perMode.value;  "
+      <ion-chip class="form-chip " style="width: 45%; border:1px solid #3dc2ff"
+        (click)="recordDetailObj.payment_mode=perMode.value;  "
         [color]="recordDetailObj.payment_mode==perMode.value  ? 'secondary' :  'white'">
 
-        <img *ngIf="perMode.img!=''" src="assets/{{perMode.img}}.png" style="{{perMode.style}}" /> 
+        <img *ngIf="perMode.img!=''" src="assets/{{perMode.img}}.png" style="{{perMode.style}}" />
         &nbsp;{{perMode.name}}
 
       </ion-chip>
@@ -143,14 +291,14 @@
     <br />
     <br />
     <ion-item *ngIf="recordDetailObj.payment_mode && recordDetailObj.payment_mode=='Other'  ">
-      <ion-label position="floating" class="margin-bottom-12">Other paid mode name       <span class="required">*</span>
+      <ion-label position="floating" class="margin-bottom-12">Other paid mode name <span class="required">*</span>
       </ion-label>
       <ion-input type="text" [(ngModel)]="recordDetailObj.payment_mode_name_if_other_selected"></ion-input>
 
     </ion-item>
-    <span  
+    <span
       *ngIf="recordDetailObj.payment_mode && recordDetailObj.payment_mode!='Cash' && recordDetailObj.payment_mode!='Cheque'">
-      <h5  >Transaction Details (Optional)</h5>
+      <h5>Transaction Details (Optional)</h5>
       <ion-item>
         <ion-label position="floating" class="margin-bottom-12">Transaction Id</ion-label>
         <ion-input type="text" [(ngModel)]="recordDetailObj.transaction_id"></ion-input>
@@ -163,8 +311,8 @@
       </ion-item>
     </span>
 
-    <span *ngIf="recordDetailObj.payment_mode=='Cheque'"  >
-      <h5  >Cheque Details (Optional)</h5>
+    <span *ngIf="recordDetailObj.payment_mode=='Cheque'">
+      <h5>Cheque Details (Optional)</h5>
       <ion-item>
         <ion-label position="floating" class="margin-bottom-12">Cheque Issued To</ion-label>
         <ion-input type="text" [(ngModel)]="recordDetailObj.cheque_issued_to"></ion-input>
@@ -212,7 +360,7 @@
           <ion-icon name="download-outline" class="per-ion-icon margin-top-10" (click)="viewDoc(perFile)"
             item-right></ion-icon>
           <ion-icon name="trash-outline" color="danger" style="margin-left: 10px;" class="per-ion-icon margin-top-10"
-            (click)="deleteFile(perFile,i)"></ion-icon>
+            (click)="deleteFile(perFile,i,'No')"></ion-icon>
         </ion-label>
       </ion-item>
     </ion-card>

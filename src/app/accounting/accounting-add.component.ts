@@ -52,23 +52,29 @@ export class AccountingAddComponent implements OnInit {
   }
   ];
   currentSegment: any = 'detail';
+  tileList: any = undefined;
+
   moduleInfo: any = { "apipath": "apipolicy/uploadfileofcredit_debit", 'linebelowBrowsefile': 'Upload record related documents !', 'module': 'Credit Debit', "showPreview": false, "browseimagepath": 'assets/browsefile.png', 'multipleAllowed': true, "filetype": 'Any' };
   constructor(private modalCtrl: ModalController, public CommonService: CommonService, private router: Router, private route: ActivatedRoute) {
     this.CommonService.showTabMenu = false; this.CommonService.loading = false;
   }
   ngOnInit() {
-
+    this.tileList = this.CommonService.balanceRecordTileList;
     this.initailFun();
 
   }
   ionViewWillEnter() {
     this.initailFun();
   }
+  performAtion(perCol: any) {
 
+
+  }
 
   initailFun() {
-    if (this.CommonService.addingOrEditingAccountinecod) {
-      this.credit_debit_id_int = this.CommonService.addingOrEditingAccountinecod;
+
+    if (this.CommonService.addingOrEditingAccountinecod.id) {
+      this.credit_debit_id_int = this.CommonService.addingOrEditingAccountinecod.id;
       this.recordDetailObj.credit_debit_id_int = this.credit_debit_id_int;
     }
     if (this.CommonService.accountList) {
@@ -88,7 +94,36 @@ export class AccountingAddComponent implements OnInit {
   }
 
   agentDetailObj: any = { name: '' };
+  editRecord() {
 
+    this.CommonService.addingOrEditingAccountinecod.show_or_addedit = 'addedit';
+
+    this.openAddRecordModalWork();
+  }
+
+  async openAddRecordModalWork() {
+
+    const modal = await this.modalCtrl.create({
+      component: AccountingAddComponent,
+    });
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+    this.CommonService.addingOrEditingAccountinecod.show_or_addedit = 'show';    if (role == 'save') {
+
+    this.CommonService.creditDebitList.every((item: any, index: any) => {
+
+      if (item.credit_debit_id_int == this.CommonService.addingOrEditingAccountinecod.id) {
+        this.recordDetailObj = data;
+
+        this.CommonService.creditDebitList[index] = data;
+        return false;
+
+      }
+      return true;
+    });
+  }
+}
 
   getAccountList() {
 
@@ -137,11 +172,13 @@ export class AccountingAddComponent implements OnInit {
   }
   SaveComponentAsModal() {
     setTimeout(() => {
-      return this.modalCtrl.dismiss(this.recordDetailObj, 'confirm');
+      return this.modalCtrl.dismiss(this.recordDetailObj, 'save');
     }, 1000);
 
   }
-
+  deleteRecord() {
+    return this.modalCtrl.dismiss(this.recordDetailObj, 'delete');
+  }
   async addAccountPolicy(AccountOrPolicy: any) {
     this.CommonService.openAccountOrPolicyModalFor = AccountOrPolicy;
     const modal = await this.modalCtrl.create({
@@ -163,8 +200,15 @@ export class AccountingAddComponent implements OnInit {
     });
   }
 
+  updateImageInfoFunList(udatedmoduleInfo: any, recordDetailObj: any) {
+    udatedmoduleInfo.imagePathArr.forEach((element: any) => {
+      recordDetailObj['imageArr'].push({ ...element });
+    });
 
-  deleteFile(filedetail: any, i: number) {
+    this.saveDataOfRecord('NO');
+  }
+
+  deleteFile(filedetail: any, i: number, callSave = 'No') {
     this.CommonService.loading = true;
 
     this.deleteFileDataSub = this.CommonService.deleteFile(filedetail.filepath).subscribe((data: any) => {
@@ -178,6 +222,9 @@ export class AccountingAddComponent implements OnInit {
           }
         });
         this.recordDetailObj.imageArr = t;
+        if (callSave == 'Yes') {
+          this.saveDataOfRecord('NO');
+        }
       } else {
         this.CommonService.message({ 'message': data.message, color: 'danger' })
       }
@@ -188,7 +235,7 @@ export class AccountingAddComponent implements OnInit {
     });
   }
 
-  saveDataOfRecord() {
+  saveDataOfRecord(closeModal = 'NO') {
 
     if (!this.recordDetailObj.paid_or_received || !this.recordDetailObj.payment_title || !this.recordDetailObj.paid_to_or_received_from || !this.recordDetailObj.amount || !this.recordDetailObj.payment_date || !this.recordDetailObj.payment_mode) {
       this.CommonService.message({ 'message': "Fill Required Fields !", color: 'warning' });
@@ -205,7 +252,11 @@ export class AccountingAddComponent implements OnInit {
 
         if (data.status) {
           this.CommonService.message({ 'message': data.message, color: 'success' })
-          this.SaveComponentAsModal();
+          if (closeModal == "YES") {
+            this.SaveComponentAsModal();
+          }
+
+
 
         } else {
           this.CommonService.message({ 'message': data.message, color: 'danger' })

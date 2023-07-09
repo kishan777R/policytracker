@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  commonURL:  'http://localhost:3500/'
+  commonURL:  'http://localhost:7500/'
 };
 
 /*

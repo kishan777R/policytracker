@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-   commonURL:  'http://localhost:3500/'
+   commonURL:  'http://localhost:7500/'
 };

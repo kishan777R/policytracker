@@ -7,7 +7,7 @@
             </ion-buttons>
         </ion-buttons>
         <ion-title class="ion-text-center">
-            {{  accountDetailObj.account_or_policy}} Details
+            {{ accountDetailObj.account_or_policy}} Details
             <ion-icon name="trash-outline" item-right color="danger"
                 (click)="deleteAccountActionSheet(accountDetailObj.account_id_int)"
                 class="per-ion-icon float-right "></ion-icon>
@@ -20,7 +20,7 @@
 <ion-content [fullscreen]="true" *ngIf="accountDetailObj">
     <ion-header collapse="condense">
         <ion-toolbar>
-            <ion-title size="large">   Details</ion-title>
+            <ion-title size="large"> {{ accountDetailObj.account_or_policy}}  Details</ion-title>
         </ion-toolbar>
     </ion-header>
 
@@ -44,8 +44,8 @@
 
 
         <div class="borderme">
-            {{  accountDetailObj.account_or_policy}} Holder : {{accountDetailObj. account_holder_name}}
-            <br /> Mobile No. : {{accountDetailObj.mobile_given_for_account}}  <br /> Email Id :
+            {{ accountDetailObj.account_or_policy}} Holder : {{accountDetailObj. account_holder_name}}
+            <br /> Mobile No. : {{accountDetailObj.mobile_given_for_account}} <br /> Email Id :
             {{accountDetailObj.email_given_for_account}}
 
             <br />
@@ -55,9 +55,9 @@
 
 
         <div class="borderme">
-            {{  accountDetailObj.account_or_policy}} No. : {{accountDetailObj.account_number}}
+            {{ accountDetailObj.account_or_policy}} No. : {{accountDetailObj.account_number}}
             <span *ngIf="accountDetailObj.bank_or_post_office=='Bank'">
-                (  {{  accountDetailObj.account_or_policy}} Type - {{accountDetailObj.account_type}})
+                ( {{ accountDetailObj.account_or_policy}} Type - {{accountDetailObj.account_type}})
             </span>
             <br />
 
@@ -66,12 +66,14 @@
                 <br />Helping Agent : {{accountDetailObj.helping_agent_name}}
             </span>
             <br />
-            {{  accountDetailObj.account_or_policy}} opening date : {{accountDetailObj.account_opening_date | date: 'longDate'}}
+            {{ accountDetailObj.account_or_policy}} opening date : {{accountDetailObj.account_opening_date | date:
+            'longDate'}}
             <br />
             <span *ngIf="accountDetailObj.account_or_policy=='Policy' && accountDetailObj.parent_account_id_int">
-                Parent Account : {{accountDetailObj.parent_account_title}} (Acc. No. : {{accountDetailObj.parent_account_number}})
+                Parent Account : {{accountDetailObj.parent_account_title}} (Acc. No. :
+                {{accountDetailObj.parent_account_number}})
                 <br />
-              </span>
+            </span>
         </div>
 
         <div class="borderme">
@@ -127,7 +129,7 @@
 
                             <ion-card style="padding:10px;border: 1px solid red;">
                                 <h2 style="color:red;text-align:center;">
-                                    No Nominee Added For This  {{  accountDetailObj.account_or_policy}}
+                                    No Nominee Added For This {{ accountDetailObj.account_or_policy}}
                                 </h2>
                             </ion-card>
                         </ion-label>
@@ -159,100 +161,106 @@
         [breakpoints]="[0, 0.25, 0.5, 0.75,0.85,0.90,1]">
         <ng-template>
             <ion-content><br /> <br />
-<span class="centerme">
-                <ion-chip class="form-chip-reactangle" (click)="whattypeofdocadding='hard';  "
-                [color]="whattypeofdocadding =='hard' ? 'secondary' :  'dark'">Physical Docs</ion-chip>
-              <ion-chip class="form-chip-reactangle" (click)="whattypeofdocadding='soft';  "
-                [color]="whattypeofdocadding =='soft' ? 'secondary' :  'dark'">Digital Docs</ion-chip><br /> <br />
-             
-            </span>
-            <br /> 
+                <span class="centerme">
+                    <ion-chip class="form-chip-reactangle" (click)="whattypeofdocadding='hard';  "
+                        [color]="whattypeofdocadding =='hard' ? 'secondary' :  'dark'">Physical Docs</ion-chip>
+                    <ion-chip class="form-chip-reactangle" (click)="whattypeofdocadding='soft';  "
+                        [color]="whattypeofdocadding =='soft' ? 'secondary' :  'dark'">Digital Docs</ion-chip><br />
+                    <br />
+
+                </span>
+                <br />
                 <span *ngIf="whattypeofdocadding=='hard'">
-                
-                <span *ngIf='showHardDocsform'>
-                  <b class="centerme">Physical Documents </b>
-                  <small style="padding:10px" class="centerme">Add related Physical Documents !</small>
-                  <ion-item>
-                    <ion-label position="floating">Document Name<span class="required">*</span></ion-label>
-                    <ion-input type="text" placeholder="Passbook" [(ngModel)]="hardCopyDetailObj.document_name"></ion-input>
-                  </ion-item>
-                  <ion-button fill="outline" color="primary" class="rightme" (click)="addHardCopiesDoc()">
-                    
-                {{isEditingHardCopyName==-1 ? 'Add':'Update'}}</ion-button>
-          
-                  <br /> <br /> <br /> <br />
+
+                    <span *ngIf='showHardDocsform'>
+                        <b class="centerme">Physical Documents </b>
+                        <small style="padding:10px" class="centerme">Add related Physical Documents !</small>
+                        <ion-item>
+                            <ion-label position="floating">Document Name<span class="required">*</span></ion-label>
+                            <ion-input type="text" placeholder="Passbook"
+                                [(ngModel)]="hardCopyDetailObj.document_name"></ion-input>
+                        </ion-item>
+                        <ion-button fill="outline" color="primary" class="rightme" (click)="addHardCopiesDoc()">
+
+                            {{isEditingHardCopyName==-1 ? 'Add':'Update'}}</ion-button>
+
+                        <br /> <br /> <br /> <br />
+                    </span>
+
+                    <b class="centerme">Physical Documents list</b>
+                    <span *ngIf='accountDetailObj.hardCopyDocArr.length==0'>
+                        <ion-card>
+                            <ion-card-header>
+                                <ion-card-subtitle>You have not added any Physical Document name till now
+                                    !</ion-card-subtitle>
+                            </ion-card-header>
+
+                        </ion-card>
+                    </span>
+                    <span *ngIf='accountDetailObj.hardCopyDocArr.length>0'>
+
+
+                        <ion-card
+                            *ngFor="let perhardFile of accountDetailObj.hardCopyDocArr.slice().reverse(); let i = index ">
+
+
+                            <ion-card-header>
+                                <ion-card-subtitle>
+
+                                    {{perhardFile.document_name}}
+                                    <span *ngIf="perhardFile.task_name">
+                                        <br />Currently this document is with Agent
+                                        <b>{{perhardFile.agent_name}}</b> for task
+
+                                        <b>{{perhardFile.task_name}}</b>
+                                    </span>
+
+                                    <ion-icon name="trash-outline" item-right color="danger" style="float:right"
+                                        (click)="deleteHardCopiesDoc(i)" class="per-ion-icon">
+
+                                    </ion-icon> <ion-icon name="create-outline" class="per-ion-icon" style="float:right"
+                                        (click)="editHardCopiesDoc(i)" item-right></ion-icon>
+                                </ion-card-subtitle>
+
+                            </ion-card-header>
+
+                        </ion-card>
+                        <span *ngIf='!showHardDocsform'>
+                            <ion-button fill="clear" color="primary" class="rightme" (click)="showHardDocsform=true"> +
+                                Add
+                                More
+                            </ion-button>
+
+                        </span>
+
+                    </span>
+
                 </span>
-          
-                <b class="centerme">Physical Documents list</b>
-                <span *ngIf='accountDetailObj.hardCopyDocArr.length==0'>
-                  <ion-card>
-                    <ion-card-header>
-                      <ion-card-subtitle>You have not added any Physical Document name till now !</ion-card-subtitle>
-                    </ion-card-header>
-          
-                  </ion-card>
-                </span>
-                <span *ngIf='accountDetailObj.hardCopyDocArr.length>0'>
-          
-          
-                  <ion-card *ngFor="let perhardFile of accountDetailObj.hardCopyDocArr.slice().reverse(); let i = index ">
-          
-          
-                    <ion-card-header>
-                      <ion-card-subtitle>
-          
-                        {{perhardFile.document_name}}
-                        <span *ngIf="perhardFile.task_name">
-                            <br />Currently this document is with Agent
-                            <b>{{perhardFile.agent_name}}</b>  for task 
-                              
-                             <b>{{perhardFile.task_name}}</b> 
-                          </span>
-                         
-                        <ion-icon name="trash-outline" item-right color="danger" style="float:right"
-                          (click)="deleteHardCopiesDoc(i)" class="per-ion-icon">
-          
-                        </ion-icon>  <ion-icon name="create-outline" class="per-ion-icon" style="float:right" (click)="editHardCopiesDoc(i)"
-                        item-right></ion-icon>
-                      </ion-card-subtitle>
-          
-                    </ion-card-header>
-          
-                  </ion-card>
-                  <span *ngIf='!showHardDocsform'>
-                    <ion-button fill="clear" color="primary" class="rightme" (click)="showHardDocsform=true"> + Add
-                      More
-                    </ion-button>
-          
-                  </span>
-          
-                </span>
-          
-              </span>
-              <span *ngIf="whattypeofdocadding=='soft'">
-          
-          
-                <b class="centerme">Digital Documents </b>
-                <small style="padding:10px" class="centerme">Add related Digital Documents !</small>
-                <app-fileupload [moduleInfo]="moduleInfoList" (newmoduleInfo)="updateImageInfoFunList($event)"></app-fileupload>
-          
-                <ion-card *ngFor="let perFile of accountDetailObj.imageArr.slice().reverse(); let i = index ">
-                  <ion-item>
-                    <ion-thumbnail slot="start" (click)="viewDoc(perFile)">
-                      <img *ngIf="perFile.filetype=='Image'" [src]="perFile.serverpath+perFile.filepath" />
-                      <ion-icon style="font-size: xxx-large;" name="document-outline"
-                        *ngIf="perFile.filetype!='Image'"></ion-icon>
-                    </ion-thumbnail>
-                    <ion-label>
-                      {{perFile.originalname}}
-                      <br />
-                      <ion-icon name="download-outline" class="per-ion-icon margin-top-10" (click)="viewDoc(perFile)"
-                        item-right></ion-icon>
-                      <ion-icon name="trash-outline" color="danger" style="margin-left: 10px;" class="per-ion-icon margin-top-10"
-                        (click)="deleteFile(perFile,i)"></ion-icon>
-                    </ion-label>
-                  </ion-item>
-                </ion-card> </span>
+                <span *ngIf="whattypeofdocadding=='soft'">
+
+
+                    <b class="centerme">Digital Documents </b>
+                    <small style="padding:10px" class="centerme">Add related Digital Documents !</small>
+                    <app-fileupload [moduleInfo]="moduleInfoList"
+                        (newmoduleInfo)="updateImageInfoFunList($event)"></app-fileupload>
+
+                    <ion-card *ngFor="let perFile of accountDetailObj.imageArr.slice().reverse(); let i = index ">
+                        <ion-item>
+                            <ion-thumbnail slot="start" (click)="viewDoc(perFile)">
+                                <img *ngIf="perFile.filetype=='Image'" [src]="perFile.serverpath+perFile.filepath" />
+                                <ion-icon style="font-size: xxx-large;" name="document-outline"
+                                    *ngIf="perFile.filetype!='Image'"></ion-icon>
+                            </ion-thumbnail>
+                            <ion-label>
+                                {{perFile.originalname}}
+                                <br />
+                                <ion-icon name="download-outline" class="per-ion-icon margin-top-10"
+                                    (click)="viewDoc(perFile)" item-right></ion-icon>
+                                <ion-icon name="trash-outline" color="danger" style="margin-left: 10px;"
+                                    class="per-ion-icon margin-top-10" (click)="deleteFile(perFile,i)"></ion-icon>
+                            </ion-label>
+                        </ion-item>
+                    </ion-card> </span>
 
 
             </ion-content>
